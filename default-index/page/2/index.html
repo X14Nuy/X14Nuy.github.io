@@ -164,7 +164,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -186,6 +186,232 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/" class="post-title-link" itemprop="url">类加载与脱壳机</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-05-18 17:11:40 / 修改时间：17:34:54" itemprop="dateCreated datePublished" datetime="2025-05-18T17:11:40+08:00">2025-05-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>自制脱壳机，将公开了源码的Fart6移植到Fart10，同时去除一些Fart特征。</p>
+<h1 id="loadClass的过程"><a href="#loadClass的过程" class="headerlink" title="loadClass的过程"></a>loadClass的过程</h1><p>loadClass的过程可以总结成：1.判断是否是当前类加载器加载了此类；2.若不是，让父加载器加载此类；3.若父加载器加载失败，由当前加载器加载。</p>
+<p>一般实现类加载，同时使用ClassLoader的实例调用loadClass。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193342573.png" alt="image-20250423193342573"></p>
+<p>可以看到，ClassLoader.loadClass(String className)间接调用重载函数，resolve在这里不起作用，在JVM中，如果resolve为true，表示加载类之后是否需要立即进行<strong>链接操作</strong>中的<strong>解析</strong>步骤。（链接包括：验证、准备（分配空间）、解析），而在安卓虚拟机中，这里忽略resolve。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193434035.png" alt="image-20250423193434035" style="zoom:67%;" />
+
+<h2 id="1-findLoadedClass（ClassLoader）——查询当前加载器是否加载了目标类"><a href="#1-findLoadedClass（ClassLoader）——查询当前加载器是否加载了目标类" class="headerlink" title="1 findLoadedClass（ClassLoader）——查询当前加载器是否加载了目标类"></a>1 findLoadedClass（ClassLoader）——查询当前加载器是否加载了目标类</h2><p>findLoadedClass是用来检查缓存的，这个方法会检查当前ClassLoader实例是否已经加载过名为className的类，每个ClassLoader实例都有一个缓存区，用来存放已经加载过的类。</p>
+<p>如果当前实例是启动类加载器，则将局部变量 <code>loader</code> 设为 <code>null</code>。这是因为查询启动类加载器加载的类通常需要通过 VM 的特殊 native 接口，并使用 <code>null</code> 来代表它。</p>
+<p>如果当前实例<strong>不是</strong>启动类加载器（比如是 AppClassLoader 或 PathClassLoader 等），则将 <code>loader</code> 设置为 <code>this</code>，即当前 ClassLoader 实例本身。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423194242183.png" alt="image-20250423194242183"></p>
+<h3 id="findLoadedClass（VMClassaLoader、JNI函数）"><a href="#findLoadedClass（VMClassaLoader、JNI函数）" class="headerlink" title="findLoadedClass（VMClassaLoader、JNI函数）"></a>findLoadedClass（VMClassaLoader、JNI函数）</h3><p>这里的VMClassLoader.findLoadedClass是一个static的JNI函数，具体实现在native层，目录为：&#x2F;art&#x2F;runtime&#x2F;native&#x2F;java_lang_VMClassLoader.cc。</p>
+<p>这个 C++ 函数 <code>VMClassLoader_findLoadedClass</code> 的核心目的是：接收一个 Java 层的 <code>ClassLoader</code> 对象和一个类名字符串，然后在 ART 虚拟机内部的数据结构中查找，判断这个特定的 <code>ClassLoader</code> <strong>是否已经加载并解析</strong>了具有该名称的类。如果找到了并且类是可用状态（已解析），就返回对应的 Java <code>Class</code> 对象 (jclass)；否则返回 <code>nullptr</code>。</p>
+<p>现在来简单解释一下下图的函数VMClassLoader_findLoadedClass。</p>
+<p>第31行，env是标准的JNI的接口，提供java与native之间的交互。soa可以理解为ART对JNI交互的封装与简化，它的底层还是使用env来工作，但自动管理线程状态，更安全、方便。</p>
+<p>第32行，将Java层的jobject javaLoader解码成ART内部表示的mirror::ClassaLoader*指针loader，这里的mirror是ART中表示Java堆对象的类的命名空间。</p>
+<p>第33行，将javaName从java的jstring转换成c&#x2F;c++使用的UTF-8编码字符串。</p>
+<p>第37行，获取ClassLinker实例，ClassLinker实例要负责类的<strong>加载</strong>、<strong>链接</strong>（验证、准备、解析）、<strong>初始化</strong>。所有类查找、类定义、解析相关的操作，都要经过ClassLinker。</p>
+<p>第38行，将点分格式的类名转换成虚拟机内部使用的描述符，即斜杠格式。</p>
+<p>第39行，将类描述符转换成唯一的哈希值。</p>
+<p>第40行，根据<strong>哈希值、loader、类描述符、当前的线程</strong>（soa.Self()返回线程Thread<em>指针），来去找*<em>唯一的类</em></em>。</p>
+<p>这里重点关注LookupClass。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423195152864.png" alt="image-20250423195152864" style="zoom:80%;" />
+
+<h4 id="LookupClass"><a href="#LookupClass" class="headerlink" title="LookupClass"></a>LookupClass</h4><p>在LookupClass中。</p>
+<p><strong>第一阶段，查主表。（缓存查找）</strong></p>
+<p>使用 <code>ReaderMutexLock</code> 获取对 <code>ClassLinker</code> 内部类表的读取锁，保证线程安全。</p>
+<p>调用 <code>LookupClassFromTableLocked</code> 在主要的类表（包括 Zygote 预加载表 <code>pre_zygote_class_table_</code> 和运行时表 <code>class_table_</code>）中查找。</p>
+<p>如果在表中找到了匹配的类 (<code>result != nullptr</code>)，就立即返回结果。锁会自动释放。</p>
+<p><strong>第二阶段，查启动镜像（启动类加载器）。</strong></p>
+<p>仅当第一阶段失败、查找的是启动类加载器 (<code>class_loader == nullptr</code>)、<strong>且</strong>需要查找镜像时，才执行这里。</p>
+<p>调用 <code>LookupClassFromImage(descriptor)</code> 尝试在 dex_caches_ 中查找。</p>
+<p>如果找到了 (<code>result != nullptr</code>): 调用 <code>InsertClass</code> 将其加入主类表（可能是 <code>class_table_</code>），起到缓存作用，然后返回找到的 <code>result</code>。</p>
+<p>如果还没找到 (<code>result == nullptr</code>): 增加查找镜像失败的计数器。如果失败次数超过阈值 (<code>kMaxFailedDexCacheLookups</code>)，则触发一个优化操作 <code>MoveImageClassesToClassTable()</code>，将所有启动镜像中的类都添加到主类表中，以加速后续查找。最后返回 <code>nullptr</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423203016909.png" alt="image-20250423203016909"></p>
+<h5 id="LookupClassFromTableLocked"><a href="#LookupClassFromTableLocked" class="headerlink" title="LookupClassFromTableLocked"></a>LookupClassFromTableLocked</h5><p>在LookupClassFromTableLocked中，pre_zygote_class_table_记录着预加载的类（Zygote进程在创建时，初始化了虚拟机并加载了一系列预加载的动态链接库，这些动态链接库里的类记录在这个预加载类表里）。而class_table_则是动态类表，它存储了 Zygote 之后由各种 ClassLoader 加载的类，以及从启动镜像（image）查找到并缓存起来的类。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423203338637.png" alt="image-20250423203338637"></p>
+<h5 id="LookupClassFromImage"><a href="#LookupClassFromImage" class="headerlink" title="LookupClassFromImage"></a>LookupClassFromImage</h5><p>函数LookupClassFromImage是从启动类加载器的dex_cache中找目标类，DexCache类用于关联DexFile对象。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424093826619.png" alt="image-20250424093826619"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424104135348.png" alt="image-20250424104135348" style="zoom:67%;" />
+
+<h2 id="2-parent-loadClass——委托父加载器加载"><a href="#2-parent-loadClass——委托父加载器加载" class="headerlink" title="2 parent.loadClass——委托父加载器加载"></a>2 parent.loadClass——委托父加载器加载</h2><p>上述流程已经把如何寻找一个类讲得很详细了，接下来讲委派双亲机制。</p>
+<p>下图中，在findLoadedClass找不到className后，就会尝试执行parent.loadClass，让父加载器去加载，父加载器的执行流程也是：findLoadedClass、parent.loadClass、findClass。</p>
+<p>所以，这里不细讲委派机制（双亲委派机制不难），直接讲如何加载一个未加载的类。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193434035.png" alt="image-20250423193434035" style="zoom:67%;" />
+
+<h2 id="3-findClass——自己加载"><a href="#3-findClass——自己加载" class="headerlink" title="3 findClass——自己加载"></a>3 findClass——自己加载</h2><p>这里分析的是BaseDexClassLoader的findClass，一般整体壳都绕不开BaseDexClassLoader，BaseDexClassLoader的父类是ClassLoader，我们之前分析的findLoadedClass和parent.loadClass都是ClassLoader类中，loadClass里出现的函数。BaseDexClassLoader并没有实现自己的loadClass，所以loadClass都是从ClassLoader继承过来的。</p>
+<p>但ClassLoader的findClass已经被BaseDexClassLoader覆写了，我们这里就需要分析findClass。</p>
+<p><code>findClass</code> 函数的核心职责就是：<strong>在当前 ClassLoader 管理的一系列 Dex 文件中，按顺序查找指定的类，如果找到，就加载并定义它。</strong></p>
+<p>下图中，pathList是个老熟人了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423213829616.png" alt="image-20250423213829616"></p>
+<h3 id="pathList——属于类DexPathList"><a href="#pathList——属于类DexPathList" class="headerlink" title="pathList——属于类DexPathList"></a>pathList——属于类DexPathList</h3><p>pathList是BaseDexClassLoader声明的一个DexPathList类型的私有成员变量。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423215020680.png" alt="image-20250423215020680"></p>
+<p>关于DexPathList，从字面上来看，它是存储Dex路径列表的一个变量，从功能上来说，它存储的路径包括：apk的路径、dex的路径、jar的路径、class的路径等。然而，类DexPathList存储路径的列表（成员变量）叫dexElements，这一度让我以为——“一个Element实例代表一个Dex文件路径”，这个概念其实是错的。</p>
+<p>通过注释，其实可以知道，这个成员变量应该叫pathElements，结果因为Facebook app改了名字，What can I say。</p>
+<p>纠正一下上面的概念，这里的dexElements是一个Element数组，每个Element实例存储的是一个路径，这个路径要是指向apk，可能包含不止一个Dex，所以一个Element实例代表一个Dex文件路径的概念是错误的。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423220734893.png" alt="image-20250423220734893" style="zoom:67%;" />
+
+<p>接着看看DexPathList的findClass。</p>
+<p>可以看到，这里取出了每个Element实例，并取出了element.dexFile赋给dex，然后调用了dex.loadClassBinaryName去找目标类是否在当前的文件（apk&#x2F;dex&#x2F;jar&#x2F;class）中。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423221852117.png" alt="image-20250423221852117"></p>
+<h4 id="dexElements——属于类Element"><a href="#dexElements——属于类Element" class="headerlink" title="dexElements——属于类Element"></a>dexElements——属于类Element</h4><p>类Element是定义在DexPathList的静态内部类，从成员变量中可以看出，它存储的类型有apk&#x2F;zip&#x2F;dex等，还有一个很关键的成员变量dexFile。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423222628102.png" alt="image-20250423222628102" style="zoom:80%;" />
+
+<h5 id="mCookie——属于类DexFile"><a href="#mCookie——属于类DexFile" class="headerlink" title="mCookie——属于类DexFile"></a>mCookie——属于类DexFile</h5><p>DexFile的mCookie很重要，在native层中，通过相关函数的调用，可以利用mCookie去获取DexFile（可以理解为PathFile）里存放的所有Dex文件。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423223224521.png" alt="image-20250423223224521" style="zoom:80%;" />
+
+<p>阅读DexFile.java中的代码，会发现mCookie的值由jni函数openDexFileNative获得。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423223802545.png" alt="image-20250423223802545"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423224106202.png" alt="image-20250423224106202" style="zoom: 67%;" />
+
+<p>java层openDexFileNative对应着native层的DexFile_openDexFileNative。</p>
+<p>第154-161行，将输入的jstring转换成c&#x2F;c++的const char*来使用。</p>
+<p>第163行，获取ART运行时的ClassLinker实例，打开Dex文件和处理OAT文件是ClassLinker的职责之一。</p>
+<p>第164行，创建一个std::vector，用于存放成功打开的DexFile对象。</p>
+<p>第165行，创建error_msgs用于收集打开过程中可能出现的错误信息。</p>
+<p>第167行，可以理解为OpenDexFilesFromOat将已打开的Dex文件(们)的内部句柄打包成一个long[]数组，返回给dex_files。</p>
+<p>第170行，将这些句柄从native类型转换成JNI类型，赋值给array，array会通过return赋给Java层的mCookie。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423224207810.png" alt="image-20250423224207810" style="zoom:80%;" />
+
+<p>于是我们知道了，mCookie是已打开的Dex文件们的句柄数组指针。</p>
+<h5 id="loadClassBinaryName——属于类DexFile"><a href="#loadClassBinaryName——属于类DexFile" class="headerlink" title="loadClassBinaryName——属于类DexFile"></a>loadClassBinaryName——属于类DexFile</h5><p>回到这张图，讲DexFile的loadClassBinaryName。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423221852117.png" alt="image-20250423221852117"></p>
+<p>直接跳转到defineClass。</p>
+<p><img src="/./assets/image-20250423230919815.png" alt="image-20250423230919815"></p>
+<p>再跳转到defineClassNative。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423231002943.png" alt="image-20250423231002943" style="zoom:67%;" />
+
+<p>defineClassNative是一个静态JNI函数。</p>
+<p>第220行，眼熟吧，将cookie转换回了dex_files句柄数组。</p>
+<p>第234行，遍历每一个打开的Dex文件句柄。</p>
+<p>第235行，通过函数FindClassDef，去每个Dex文件里寻找目标Class是否存在。</p>
+<p>第236行，如果存在，则通过ClassLinker的实例class_linker，对这个Dex文件进行注册，加入dex_caches。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423231252117.png" alt="image-20250423231252117"></p>
+<h6 id="FindClassDef——找到类定义"><a href="#FindClassDef——找到类定义" class="headerlink" title="FindClassDef——找到类定义"></a>FindClassDef——找到类定义</h6><p>这个函数的核心目的是：<strong>在当前的 <code>DexFile</code> 对象所代表的 Dex 文件内部，根据给定的类描述符 (descriptor) 字符串和其哈希值，查找并返回对应的 <code>DexFile::ClassDef</code> 结构体指针。</strong></p>
+<p>其中，第481-485行，在解析一个Dex文件，获得Class的数量。</p>
+<p>第486-499行，遍历类定义表，根据类定义结构的class_idx_是指向type索引表，这里通过描述符descriptor获取到了type_idx，然后和每个类的class_idx_进行比较，以此找出类。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424105954640.png" alt="image-20250424105954640" style="zoom:80%;" />
+
+<p>下图是ClassDef的结构。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424140948995.png" alt="image-20250424140948995" style="zoom:80%;" />
+
+<h6 id="RegisterDexFile——将DexFile加入缓存"><a href="#RegisterDexFile——将DexFile加入缓存" class="headerlink" title="RegisterDexFile——将DexFile加入缓存"></a>RegisterDexFile——将DexFile加入缓存</h6><p>dex_cache会被加入ClassLinker中的dex_caches_中（通过dex_caches_.push_back），ClassLinker会通过这个列表跟踪所有已注册的Dex缓存，建立了dex_cache和dex_file之间的连接（dex_cache-&gt;SetDexFile(&amp;dex_file)）。</p>
+<p>这个过程确保了每个被 ART 管理的 Dex 文件都有一个对应的 DexCache，并且 ClassLinker 能够找到并管理这些缓存。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424142218357.png" alt="image-20250424142218357" style="zoom:80%;" />
+
+<h6 id="DefineClass——类的加载、链接、初始化"><a href="#DefineClass——类的加载、链接、初始化" class="headerlink" title="DefineClass——类的加载、链接、初始化"></a>DefineClass——类的加载、链接、初始化</h6><p>这个函数是<strong>实际定义一个新类</strong>的核心逻辑。它接收一个在 <code>dex_file</code> 中找到的类定义 <code>dex_class_def</code>，以及要使用的 <code>class_loader</code>，然后负责创建对应的运行时 <code>mirror::Class</code> 对象，并执行加载和链接的关键步骤。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424144226011.png" alt="image-20250424144226011" style="zoom:67%;" />
+
+<p>第1816行-1829行，处理特殊的类。</p>
+<p>第1831-1841行，分配内存创建Class对象。</p>
+<p>第1842行，将DexFile对应的DexCache设置到Class对象中。</p>
+<p>第1844行，用ClassDef和ClassLoader信息填充Class对象。</p>
+<p>第1847-1850行，为String类专门进设置标志。——没深入分析。</p>
+<p>第1853-1854行，获得这个类的锁，防止并发初始化，记录当前线程为类的初始化线程。</p>
+<p><img src="/./assets/image-20250424144506020.png" alt="image-20250424144506020"></p>
+<p>第1857行，根据描述符、Class对象.Get()、类描述符的hash值插入一个新加载的类到类表class_table_中。</p>
+<p>第1858-1862行，插入失败，说明被其它线程插入了，使用已存在的Class对象并确保它已经被解析。</p>
+<p>第1868-1876行，加载类的成员（字段和方法信息），如果失败，标志Class状态为Error。</p>
+<p>第1878-1879行，此时类状态应该为Loaded（成员已经加载，但父类&#x2F;接口未连接）。</p>
+<p>第1880行，加载并链接父类和接口。</p>
+<p>第1894行，执行链接（验证、准备、解析字段&#x2F;方法、设置vtable&#x2F;iftable等）。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424145459019.png" alt="image-20250424145459019"></p>
+<p>最后返回的是一个定义并链接好的Class对象。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424150802221.png" alt="image-20250424150802221" style="zoom:80%;" />
+
+<p>整个逻辑如下图所示。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424150959405.png" alt="image-20250424150959405" style="zoom:80%;" />
+
+<p>（注：说明一下，Java的DexFile类和C&#x2F;C++的DexFile类不一样，Java的DexFile通常指向一个APK文件或JAR文件或Dex文件等等，所以一个DexFile类可能会存储着许多个Dex文件；而C&#x2F;C++的DexFile类指向一个Dex文件）</p>
+<p>一个 Java <code>DexFile</code> 对象虽然是基于一个<strong>单一的源文件路径 (APK&#x2F;JAR)</strong> 创建的，但它内部通过 <code>mCookie</code> (一个 <code>long[]</code> 数组) 可以管理从该源文件或其对应的 OAT 文件中加载出来的<strong>一个或多个</strong>底层的 C++ <code>art::DexFile</code> 实例。这对于支持 Android 的 MultiDex 机制至关重要。</p>
+<h1 id="Fart的逻辑"><a href="#Fart的逻辑" class="headerlink" title="Fart的逻辑"></a>Fart的逻辑</h1><p>Fart脱壳的步骤主要分为3步：</p>
+<p>1.找到合适的点，通过DexFile结构脱下完整的dex；</p>
+<p>2.主动调用类中的每一个方法，并实现对CodeItem的dump；</p>
+<p>3.修复Dex。</p>
+<h2 id="整体壳"><a href="#整体壳" class="headerlink" title="整体壳"></a>整体壳</h2><p>下图是Fart的第1点的逻辑。</p>
+<p>一个类的初始化函数是不会被直接编译成OAT代码的，而一个Java的Method，除了走OAT代码模式，就必须走解释器模式，解释器模式必须经过函数Execute，因此，可以在Execute里针对<clinit>进行dump，以完成整个dex的dump。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424201851497.png" alt="image-20250424201851497"></p>
+<h2 id="抽取壳"><a href="#抽取壳" class="headerlink" title="抽取壳"></a>抽取壳</h2><p>下图是Fart的第2点逻辑。</p>
+<p><img src="/./assets/image-20250424193856630.png" alt="image-20250424193856630"></p>
+<p>之后，又有人写了一个FartExt，逻辑如下。</p>
+<img src="./制作脱壳机.assets/659397_VSXS7G8WNMTJTVH.png" alt="659397_VSXS7G8WNMTJTVH" style="zoom:80%;" />
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -898,13 +1124,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">195k</span>
+    <span title="站点总字数">226k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:55</span>
+    <span title="站点阅读时长">6:52</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
