@@ -164,12 +164,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -186,6 +186,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/v380pro-apk%E7%9A%84%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/v380pro-apk%E7%9A%84%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">v380pro apk的分析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-05-18 17:18:46 / 修改时间：17:31:59" itemprop="dateCreated datePublished" datetime="2025-05-18T17:18:46+08:00">2025-05-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>436</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="v380摄像头的apk某加密数据包分析"><a href="#v380摄像头的apk某加密数据包分析" class="headerlink" title="v380摄像头的apk某加密数据包分析"></a>v380摄像头的apk某加密数据包分析</h1><p>先展示成果，原始数据内容通过了gzip压缩、AES（CBC模式）加密、base64编码，反过来就可以进行解密了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/440bb350e19efe0a1875d507dca14c85_.png" alt="440bb350e19efe0a1875d507dca14c85_"></p>
+<p>先通过r0capture查看函数调用栈，然后在几个关键函数处，hook下来，打印对象值，看看具体是哪一块进行加密。发现call到a的过程中有一个加密。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/ea4f083bd8f337a6af2f47321cec2ed9_.png" alt="ea4f083bd8f337a6af2f47321cec2ed9_"></p>
+<p>由于call函数的过程，涉及很多对象的初始化，数据其实也在其中进行初始化了，很难分析。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/44a00f659e44e8aed78903fb2f2eb975_.png" alt="44a00f659e44e8aed78903fb2f2eb975_"></p>
+<p>这里因为打印某些对象的值（gson包），发现了加密后data属于BodyRequest的成员变量j。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/0cbae3daf4b83043c88619535bff848b_.png" alt="0cbae3daf4b83043c88619535bff848b_"></p>
+<p>追踪这个j。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/709b8770f19f671dfa0b002c16daf2a7_.png" alt="709b8770f19f671dfa0b002c16daf2a7_"></p>
+<p>判断j的赋值在Api.c(api)。这里又可以看到j的值由api.k得到的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/d4c09d3ffc515fa4654fbace709f3983_.png" alt="d4c09d3ffc515fa4654fbace709f3983_"></p>
+<p>继续追踪k。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/0896cd869b7a3d63589fd05f418c88c5_.png" alt="0896cd869b7a3d63589fd05f418c88c5_"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250324104835752.png" alt="image-20250324104835752"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/1d2f14a451e917fbeb8602ade035485e_.png" alt="1d2f14a451e917fbeb8602ade035485e_"></p>
+<p>搜索了一下，Kalle是一个开源sdk，body函数是用来填充负载部分的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/3e69a42994b597b0ae4483e739d98f1b_.png" alt="3e69a42994b597b0ae4483e739d98f1b_"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/b2cea87c97f306d4dd4b4125a2ad7f34_.png" alt="b2cea87c97f306d4dd4b4125a2ad7f34_"></p>
+<p>这里很容易就知道AES_KEY和IV。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/81a77f0fba59b744b843db4d595f8c6a_.png" alt="81a77f0fba59b744b843db4d595f8c6a_"></p>
+<p>直接用工具。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/68c71f761cc84d618bc4a69b93defa06_.png" alt="68c71f761cc84d618bc4a69b93defa06_" style="zoom:67%;" />
+
+<p>如果要尝试使用分析libapk0000.so，我觉得可以解密字符串，然后进行dump下来查看，大概就可以判断加密模式了，如果是自定义的加密模式，那可能真要逆向了。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -984,13 +1093,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">354k</span>
+    <span title="站点总字数">426k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">10:44</span>
+    <span title="站点阅读时长">12:54</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
