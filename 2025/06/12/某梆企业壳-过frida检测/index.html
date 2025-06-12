@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="某汽车app查壳github:https:&#x2F;&#x2F;github.com&#x2F;moyuwa&#x2F;ApkCheckPack 使用查壳工具简单看一看。  root检测打开app直接闪退。 使用magisk，把app加入排除列表中。   能正常打开了，说明对root的检测比较常规。 frida检测使用frida进行注入，等了一会后，进程退出。  试试使用老方法——hook pthread_create。   so文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某梆企业壳--过frida检测">
+<meta property="og:url" content="http://example.com/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="某汽车app查壳github:https:&#x2F;&#x2F;github.com&#x2F;moyuwa&#x2F;ApkCheckPack 使用查壳工具简单看一看。  root检测打开app直接闪退。 使用magisk，把app加入排除列表中。   能正常打开了，说明对root的检测比较常规。 frida检测使用frida进行注入，等了一会后，进程退出。  试试使用老方法——hook pthread_create。   so文件">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611184449878.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611183441372.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611184240288.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611185818226.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611191050875.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611194040752.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611214225402.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611214444985.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611215932607.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250612121116232.png">
+<meta property="article:published_time" content="2025-06-12T04:47:22.000Z">
+<meta property="article:modified_time" content="2025-06-12T04:51:42.062Z">
+<meta property="article:author" content="X14Nuy">
+<meta property="article:tag" content="ez">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611184449878.png">
+
+
+<link rel="canonical" href="http://example.com/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/","path":"2025/06/12/某梆企业壳-过frida检测/","title":"某梆企业壳--过frida检测"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>某梆企业壳--过frida检测 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%90%E6%B1%BD%E8%BD%A6app"><span class="nav-number">1.</span> <span class="nav-text">某汽车app</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E5%A3%B3"><span class="nav-number">1.1.</span> <span class="nav-text">查壳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#root%E6%A3%80%E6%B5%8B"><span class="nav-number">1.2.</span> <span class="nav-text">root检测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#frida%E6%A3%80%E6%B5%8B"><span class="nav-number">1.3.</span> <span class="nav-text">frida检测</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">X14Nuy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="某梆企业壳--过frida检测 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          某梆企业壳--过frida检测
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-06-12 12:47:22 / 修改时间：12:51:42" itemprop="dateCreated datePublished" datetime="2025-06-12T12:47:22+08:00">2025-06-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="某汽车app"><a href="#某汽车app" class="headerlink" title="某汽车app"></a>某汽车app</h1><h2 id="查壳"><a href="#查壳" class="headerlink" title="查壳"></a>查壳</h2><p>github:<a target="_blank" rel="noopener" href="https://github.com/moyuwa/ApkCheckPack">https://github.com/moyuwa/ApkCheckPack</a></p>
+<p>使用查壳工具简单看一看。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611184449878.png" alt="image-20250611184449878"></p>
+<h2 id="root检测"><a href="#root检测" class="headerlink" title="root检测"></a>root检测</h2><p>打开app直接闪退。</p>
+<p>使用magisk，把app加入排除列表中。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611183441372.png" alt="image-20250611183441372" style="zoom:80%;" />
+
+<p>能正常打开了，说明对root的检测比较常规。</p>
+<h2 id="frida检测"><a href="#frida检测" class="headerlink" title="frida检测"></a>frida检测</h2><p>使用frida进行注入，等了一会后，进程退出。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611184240288.png" alt="image-20250611184240288"></p>
+<p>试试使用老方法——hook pthread_create。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611185818226.png" alt="image-20250611185818226" style="zoom:67%;" />
+
+<p>so文件是加密的，可以从内存中dump下来，然后修复了再看。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611191050875.png" alt="image-20250611191050875"></p>
+<p>但这里先不dump，先试试在libDexHelper加载的第一时刻，直接将sub_4f884替换掉。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611194040752.png" alt="image-20250611194040752"></p>
+<p>为什么会报红呢，因为在加载libDexHelper.so的时候，函数sub_4f884尚未解密，所以frida没hook上。</p>
+<p>因此，需要在解密函数执行完后，再对函数sub_4f884进行hook。</p>
+<p>在把libDexHelper.so dump下来以后，用sofix进行修复。</p>
+<p>一般都是在init_array和JNI_OnLoad中进行解密。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611214225402.png" alt="image-20250611214225402"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611214444985.png" alt="image-20250611214444985"></p>
+<p><strong>假设libDexHelper.so通过pthread_create创建了一个线程</strong>，这个线程要执行start_routine——sub_4f884，那么，我可以选择这样一个hook时机。</p>
+<p>检查函数pthread_create的第3个参数start_routine是否指向libDexHelper.so的sub_4f884，如果指向，则在onEnter回调中，替换sub_4f884。——执行前，应该已经完成了解密。</p>
+<p>然而，在将start_routine指向的函数替换后，进程还是会退出，说明除了sub_4f884，仍有检测frida的地方</p>
+<p>如果想要一个进程反复检测frida的存在，那就需要创建子线程或子进程，一般来说都是创建子线程。</p>
+<p>而创建线程的方法有系统调用（svc）、pthread_create（库调用）、clone（库调用）。</p>
+<p><strong>之所以要写这篇博客，其实就是想讲讲clone、pthread_create、fork的区别。</strong></p>
+<p>fork和pthread_create都是依靠clone创建的，根据传递不同的参数给clone，以区别创建的是进程还是线程。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250611215932607.png" alt="image-20250611215932607"></p>
+<p>我hook库函数pthread_create，发现libDexHelper仅仅只创建了1个线程（sub_4f884）。</p>
+<p>pthread_create在libc是这样子的，也就是说，clone的第4个参数v30，再加上96的偏移就是pthread_create的a3（start_routine）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__int64 __fastcall <span class="title">pthread_create</span><span class="params">(_QWORD *a1, __int64 a2, __int64 a3, __int64 a4)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    *(_QWORD *)(v30 + <span class="number">96</span>) = a3;</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    v32 = <span class="built_in">clone</span>(__pthread_start, v18, <span class="number">4001536LL</span>, v30, v30 + <span class="number">16</span>, v22 + <span class="number">8</span>, v30 + <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>之后只要将下面的函数给hook掉，frida就能正常用了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250612121116232.png" alt="image-20250612121116232"></p>
+<p>不过我挺好奇是如何调用的clone？——got劫持，还是说其他的方法。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ez/" rel="tag"># ez</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/10/xhs%E5%88%86%E6%9E%90%E2%80%94%E2%80%94shield%E5%AD%97%E6%AE%B5/" rel="prev" title="xhs分析——shield字段">
+                  <i class="fa fa-angle-left"></i> xhs分析——shield字段
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">X14Nuy</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">427k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">12:56</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
