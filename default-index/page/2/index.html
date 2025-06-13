@@ -164,12 +164,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -186,6 +186,148 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/%E7%AE%97%E6%B3%95%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%E5%88%9D%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/%E7%AE%97%E6%B3%95%E9%80%86%E5%90%91%E5%88%86%E6%9E%90%E5%88%9D%E8%AF%86/" class="post-title-link" itemprop="url">算法逆向分析初识</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-05-18 17:23:57 / 修改时间：17:32:44" itemprop="dateCreated datePublished" datetime="2025-05-18T17:23:57+08:00">2025-05-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="hellojni-2-0-7-apk"><a href="#hellojni-2-0-7-apk" class="headerlink" title="hellojni_2.0.7.apk"></a>hellojni_2.0.7.apk</h1><p>目标：还原signs的加密算法。</p>
+<p>点击SIGN2按钮后，下面这个签名会发生改变。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414145949279.png" alt="image-20250414145949279" style="zoom:67%;" />
+
+<p>通过定位，发现这个签名是由JNI函数<strong>Java_com_example_hellojni_HelloJni_sign2</strong>生成的。</p>
+<p>进一步，对其中的sub_1CFF0进行hook，发现其第3个参数（从1开始算）便是签名。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414150401970.png" alt="image-20250414150401970" style="zoom:67%;" />
+
+<p>hook的代码如下，将其中的addr赋值为<strong>1CFF0</strong>即可。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hook_find_target_address</span>(<span class="params">addr</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> base = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libhello-jni.so&quot;</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nlibhello-jni.so Baseaddr: &quot;</span> + base);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> target_addr = base.<span class="title function_">add</span>(addr);</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nTarget Address: &quot;</span> + target_addr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// hook并打印参数和返回值</span></span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(target_addr, &#123;</span><br><span class="line">        <span class="title function_">onEnter</span>(<span class="params">args</span>)&#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg0</span> = args[<span class="number">0</span>];</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg1</span> = args[<span class="number">1</span>];</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg2</span> = args[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nsub_&quot;</span> + addr.<span class="title function_">toString</span>(<span class="number">16</span>) + <span class="string">&quot;args: &quot;</span>);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\ninput_str: \r\n&quot;</span> + <span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">arg0</span>));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\ninput_str_length: &quot;</span> + <span class="variable language_">this</span>.<span class="property">arg1</span>);</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="title function_">onLeave</span>(<span class="params">retval</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\noutput_str: \r\n&quot;</span> + <span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">arg2</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>打印的结果如下图所示。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414150622333.png" alt="image-20250414150622333" style="zoom:80%;" />
+
+<p>为了方便分析，这里需要将input_str和input_str_length进行固定。</p>
+<p>如图所示，我将输入字符串固定为”1234567890abcdefg”。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hook_find_target_address</span>(<span class="params">addr</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> base = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libhello-jni.so&quot;</span>);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nlibhello-jni.so Baseaddr: &quot;</span> + base);</span><br><span class="line">    <span class="keyword">var</span> target_addr = base.<span class="title function_">add</span>(addr);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nTarget Address: &quot;</span> + target_addr);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// hook并打印参数和返回值</span></span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(target_addr, &#123;</span><br><span class="line">        <span class="title function_">onEnter</span>(<span class="params">args</span>)&#123;</span><br><span class="line">            <span class="comment">// 保存原始参数值以便打印</span></span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg0</span> = args[<span class="number">0</span>];</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg1</span> = args[<span class="number">1</span>];</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">arg2</span> = args[<span class="number">2</span>];</span><br><span class="line">            </span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\nsub_&quot;</span> + addr.<span class="title function_">toString</span>(<span class="number">16</span>) + <span class="string">&quot; args: &quot;</span>);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\n原始input_str: \r\n&quot;</span> + <span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">arg0</span>, &#123; <span class="attr">length</span>: <span class="built_in">parseInt</span>(<span class="variable language_">this</span>.<span class="property">arg1</span>) &#125;));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\ninput_str_length: &quot;</span> + <span class="variable language_">this</span>.<span class="property">arg1</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 新字符串</span></span><br><span class="line">            <span class="keyword">var</span> new_str = <span class="string">&quot;1234567890abcdefg&quot;</span>;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 方法1：直接写入内存</span></span><br><span class="line">            <span class="title class_">Memory</span>.<span class="title function_">writeUtf8String</span>(args[<span class="number">0</span>], new_str);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 方法2：如果需要写入二进制数据而不是UTF8字符串</span></span><br><span class="line">            <span class="comment">// var bytes = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x00]; // &quot;1234567890abcdef\0&quot;</span></span><br><span class="line">            <span class="comment">// Memory.writeByteArray(args[0], bytes);</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">var</span> length = new_str.<span class="property">length</span>;</span><br><span class="line">            args[<span class="number">1</span>] = <span class="title function_">ptr</span>(length);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">args1</span> = args[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\n修改后的长度: &quot;</span> + <span class="variable language_">this</span>.<span class="property">args1</span>);</span><br><span class="line"></span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\n修改后input_str: \r\n&quot;</span> + <span class="title function_">hexdump</span>(args[<span class="number">0</span>], &#123; <span class="attr">length</span>: <span class="built_in">parseInt</span>(<span class="variable language_">this</span>.<span class="property">args1</span>) &#125;));</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="title function_">onLeave</span>(<span class="params">retval</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;\r\noutput_str: \r\n&quot;</span> + <span class="title function_">hexdump</span>(<span class="variable language_">this</span>.<span class="property">arg2</span>, &#123; <span class="attr">length</span>: <span class="built_in">parseInt</span>(<span class="variable language_">this</span>.<span class="property">args1</span>) &#125;));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414153532777.png" alt="image-20250414153532777" style="zoom:80%;" />
+
+<p>在确保了输入字符串不变后，尝试使用IDA的trace，追踪函数sub_1CFF0。</p>
+<p>先注入frida、再注入IDA server——似乎不按这个顺序，先注入IDA再注入Frida，Frida会注入失败。</p>
+<p>我决定先退出Frida的hook，再进行追踪，因为我发现Frida要是已经hook了sub_1CFF0，在sub_1CFF0的函数开始的地方，会存在inline hook，跳转到Frida的跳床函数。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414153913051.png" alt="image-20250414153913051" style="zoom:80%;" />
+
+<p>通过IDA trace，走过的汇编指令会变成黄色。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414154156636.png" alt="image-20250414154156636"></p>
+<p>追踪到的内容如下图所示，第一栏的36EE是线程id，第二栏是地址，第三栏开始就是汇编指令了，如果汇编指令修改了寄存器，则会在汇编指令后面，显示寄存器被修改后的值。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414154332639.png" alt="image-20250414154332639"></p>
+<p>之后，我重新生成了一个trace记录，并记录了一下签名值。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414162840995.png" alt="image-20250414162840995" style="zoom: 50%;" />
+
+<p>之后进行算法逆向。</p>
+<p>已知算法的输入是input_str &#x2F; input_str_length &#x2F; output_str，分别代表着X0、X1、X2。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414164247587.png" alt="image-20250414164247587"></p>
+<p>因为X2代表着output_str的内存地址，所以追踪X2，判断有哪些指令对地址0x00000079E1720D90上的内容进行了修改。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414164543132.png" alt="image-20250414164543132" style="zoom:80%;" />
+
+<p>查找到了34个对0x00000079E1720D90进行读写的位置。</p>
+<p>对其中一些指令进行还原，可以猜到。</p>
+<p>X8代表：当前正在操作output的第X8个字节，也代表循环次数；</p>
+<p>X5代表output的内存地址；</p>
+<p>X29[var_64]是一个固定字节数组。</p>
+<p>X29[var_68]也是一个固定字节数组。</p>
+<p>至于var_6C，最后还是追踪到var_68上。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250414190420796.png" alt="image-20250414190420796"></p>
+<p>做了一些补充。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250415094520831.png" alt="image-20250415094520831"></p>
+<p>一直追踪[X29,#var_64]。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250415094627344.png" alt="image-20250415094627344"></p>
+<p>而一直追踪[X29,#var_68]，会发现需要追踪X2，继而追踪X2和X3，继而追踪X3和X7……</p>
+<p>最后追踪到[X29,#var_88]。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250415094751043.png" alt="image-20250415094751043"></p>
+<p>最后发现，var_88这个变量是一个指针，它将地址给了X2，由X2去获取全局变量，也就是图中的xmmword_79A31EE7B0。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250415095055847.png" alt="image-20250415095055847"></p>
+<p>至此，可以将全局变量及涉及到的寄存器改写成c。</p>
+<p>(解密的时候前8个字节和后8个字节的处理方式不同，可能还得逆，这里我直接贴别人逆好的代码)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">enc_function</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* input_str, <span class="type">int</span> input_len, <span class="type">char</span>* result)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* table_key1 = <span class="string">&quot;9d9107e02f0f07984956767ab1ac87e5&quot;</span>;</span><br><span class="line">    <span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> table_key2[] = &#123;<span class="number">0x37</span>, <span class="number">0x92</span>, <span class="number">0x44</span>, <span class="number">0x68</span>, <span class="number">0xA5</span>, <span class="number">0x3D</span>, <span class="number">0xCC</span>, <span class="number">0x7F</span>, <span class="number">0xBB</span>, <span class="number">0xF</span>, <span class="number">0xD9</span>, <span class="number">0x88</span>, <span class="number">0xEE</span>, <span class="number">0x9A</span>, <span class="number">0xE9</span>, <span class="number">0x5A</span>&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; input_len; ++i) &#123;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> X2 = input_str[i];</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> key2 = table_key2[(i &amp; <span class="number">0xF</span>) &amp; <span class="number">0xFFFFFFFF</span>];</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W8 = <span class="number">0xDA</span>;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W30 = <span class="number">0x25</span>;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W2 = X2;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W7 = W8 &amp; (~W2);</span><br><span class="line">        W2 = W2 &amp; <span class="number">0x25</span>;</span><br><span class="line">        W2 = W7 | W2;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W3 = key2;</span><br><span class="line">        W7 = W8 &amp; (~W3);</span><br><span class="line">        W3 = W3 &amp; W30;</span><br><span class="line">        W3 = W7 | W3;</span><br><span class="line">        W2 = W2 ^ W3;</span><br><span class="line">        W3 = W2;</span><br><span class="line"></span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> key1 = table_key1[(i ^ <span class="number">0xFFFFFFF8</span>) &amp; i ];</span><br><span class="line">        W2 = key1;</span><br><span class="line">        W7 = key2;</span><br><span class="line">        W30 = key2;</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W1 = W2 &amp; (~W3);</span><br><span class="line">        W3 = W3 &amp; (~W2);</span><br><span class="line">        <span class="type">unsigned</span> <span class="type">char</span> W5 = W30 &amp; (~W2);</span><br><span class="line">        W2 = W2 &amp; (~W30);</span><br><span class="line">        W1 = W1 | W3;</span><br><span class="line">        W2 = W5 | W2;</span><br><span class="line">        W1 = W1 + W7;</span><br><span class="line">        W3 = W1 &amp; (~W2);</span><br><span class="line">        W1 = W2 &amp; (~W1);</span><br><span class="line">        W1 = W3 | W1;</span><br><span class="line">        result[i] = W1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">test_eq</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* buf1, <span class="type">const</span> <span class="type">char</span>* buf2, <span class="type">int</span> buf_len)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; buf_len; ++i) &#123;</span><br><span class="line">        <span class="keyword">if</span> (buf1[i] != buf2[i]) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* input = <span class="string">&quot;0123456789abcdef0123456789abcdef&quot;</span>;</span><br><span class="line">    <span class="type">int</span> len = <span class="built_in">strlen</span>(input);</span><br><span class="line">    <span class="type">char</span>* result = (<span class="type">char</span>*)<span class="built_in">malloc</span>(len);</span><br><span class="line">    <span class="built_in">memset</span>(result, <span class="number">0</span>, len);</span><br><span class="line">    enc_function(input, len, result);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; len; ++i) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02x&quot;</span>, (<span class="type">unsigned</span> <span class="type">char</span>)result[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\r\n%x&quot;</span>, test_eq(result, result, len));</span><br><span class="line">    <span class="built_in">free</span>(result);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1246,7 +1388,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">12:56</span>
+    <span title="站点阅读时长">12:57</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
