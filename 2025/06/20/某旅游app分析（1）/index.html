@@ -19,22 +19,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/tags/ez/index.html">
+    <meta name="description" content="sotp该厂不许发布针对他们app的分析博客，好多博客都被厂商要求下架了，所以这里只是简单提几句。 一，利用查壳工具对apk做检测，并没有找到壳的特征，没加壳，dex文件都清晰可见。 二，root检测似乎不会导致app闪退与正常使用。 三，使用酒店搜索功能时，通过“花瓶”抓不到酒店的包，只能获得酒店的预览图，但具体价格、位置等信息都看不到，根据分析，使用了sotp协议。 接下来的分析关于酒店搜索功">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某旅游app分析（1）">
+<meta property="og:url" content="http://example.com/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="sotp该厂不许发布针对他们app的分析博客，好多博客都被厂商要求下架了，所以这里只是简单提几句。 一，利用查壳工具对apk做检测，并没有找到壳的特征，没加壳，dex文件都清晰可见。 二，root检测似乎不会导致app闪退与正常使用。 三，使用酒店搜索功能时，通过“花瓶”抓不到酒店的包，只能获得酒店的预览图，但具体价格、位置等信息都看不到，根据分析，使用了sotp协议。 接下来的分析关于酒店搜索功">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250620161417461.png">
+<meta property="article:published_time" content="2025-06-20T07:47:13.000Z">
+<meta property="article:modified_time" content="2025-06-20T08:31:05.073Z">
 <meta property="article:author" content="X14Nuy">
+<meta property="article:tag" content="sotp">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250620161417461.png">
 
 
-<link rel="canonical" href="http://example.com/tags/ez/">
+<link rel="canonical" href="http://example.com/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"tags/ez/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/","path":"2025/06/20/某旅游app分析（1）/","title":"某旅游app分析（1）"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>标签: ez | Hexo</title>
+<title>某旅游app分析（1） | Hexo</title>
   
 
 
@@ -139,7 +146,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -152,6 +159,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#sotp"><span class="nav-number">1.</span> <span class="nav-text">sotp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A5%E6%94%B6"><span class="nav-number">1.1.</span> <span class="nav-text">接收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E9%80%81"><span class="nav-number">1.2.</span> <span class="nav-text">发送</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -185,50 +193,121 @@
 
     </div>
 
-    <div class="main-inner tag posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">ez
-          <small>标签</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="某旅游app分析（1） | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          某旅游app分析（1）
         </h1>
-      </div>
 
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
+
+      <time title="创建时间：2025-06-20 15:47:13 / 修改时间：16:31:05" itemprop="dateCreated datePublished" datetime="2025-06-20T15:47:13+08:00">2025-06-20</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>648</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="sotp"><a href="#sotp" class="headerlink" title="sotp"></a>sotp</h1><p>该厂不许发布针对他们app的分析博客，好多博客都被厂商要求下架了，所以这里只是简单提几句。</p>
+<p>一，利用查壳工具对apk做检测，并没有找到壳的特征，没加壳，dex文件都清晰可见。</p>
+<p>二，root检测似乎不会导致app闪退与正常使用。</p>
+<p>三，使用酒店搜索功能时，通过“花瓶”抓不到酒店的包，只能获得酒店的预览图，但具体价格、位置等信息都看不到，根据分析，使用了sotp协议。</p>
+<p>接下来的分析关于酒店搜索功能。</p>
+<h2 id="接收"><a href="#接收" class="headerlink" title="接收"></a>接收</h2><p>分析了接收报文时的调用栈：</p>
+<p>报文的前8个字节代表payload长度。</p>
+<p>payload要是为6个字节，则是心跳包；反之是常规业务数据包，业务数据包的前6个字节有特殊用处，前4个字节是DataHandleType，后2个字节是Version，根据这2个值分别选择解密方式和解压缩方式（AES、Xor、Gzip、Zstandard），最好进行反序列化。</p>
+<p>对AES进行了分析，并没有魔改，IV和密钥都很好获得。</p>
+<h2 id="发送"><a href="#发送" class="headerlink" title="发送"></a>发送</h2><p>再分析了发送报文时的调用栈：</p>
+<p>对RequestBody先进行序列化，再进行压缩、加密。</p>
+<p>有意思的是，RequestBody的结构是protobuf，费了一些心思，一开始用blackboxprotobuf逐步还原请求体，后来在apk中找到了关于TAG的定义，整理成proto文件，对body部分进行还原。</p>
+<p>然后发现被这个字段开盒了hhhh。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250620161417461.png" alt="image-20250620161417461"></p>
+<p>下一篇博客应该是对该app的某个加密字段进行分析。</p>
+<p>最后，如果这个博客不允许发，可以联系我&#x2F;(ㄒoㄒ)&#x2F;~~（<a href="mailto:&#x32;&#48;&#x35;&#x30;&#51;&#x36;&#53;&#57;&#x39;&#55;&#x40;&#x71;&#x71;&#46;&#x63;&#111;&#x6d;">2050365997@qq.com</a>）</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2025-06-12T12:47:22+08:00"
-              content="2025-06-12">
-          06-12
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/" itemprop="url">
-            <span itemprop="name">某梆企业壳--过frida检测</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/sotp/" rel="tag"># sotp</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/13/%E9%9A%8F%E7%AC%94/" rel="prev" title="随笔">
+                  <i class="fa fa-angle-left"></i> 随笔
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
+
 
 </div>
   </main>
