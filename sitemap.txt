@@ -1,3 +1,4 @@
+http://example.com/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/
 http://example.com/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/
 http://example.com/2025/06/13/%E9%9A%8F%E7%AC%94/
 http://example.com/2025/06/12/%E6%9F%90%E6%A2%86%E4%BC%81%E4%B8%9A%E5%A3%B3-%E8%BF%87frida%E6%A3%80%E6%B5%8B/
@@ -27,3 +28,4 @@ http://example.com/tags/%E5%BF%83%E7%B4%AF/
 http://example.com/tags/ez/
 http://example.com/tags/%E7%A0%94%E7%A9%B6%E7%94%9F%E7%94%9F%E6%B4%BB/
 http://example.com/tags/sotp/
+http://example.com/tags/%E5%8D%8F%E8%AE%AE%E5%AD%97%E6%AE%B5%E5%88%86%E6%9E%90/

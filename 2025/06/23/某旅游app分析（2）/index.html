@@ -19,22 +19,30 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/tags/angr/index.html">
+    <meta name="description" content="某个字段分析在前一篇博客中提到，酒店搜索列表请求报文的请求体是protobuf结构。 根据分析，在这个protobuf结构中，有一个编码对应的字段是head，而head也是一个protobuf结构，head里面有一个字段是clientToken，这在protobuf结构中，属于内层嵌套。 本次的分析目标就是clientToken，同样是简略介绍（怕被投诉）。 clientToken来源于服务器，客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某旅游app分析（2）">
+<meta property="og:url" content="http://example.com/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="某个字段分析在前一篇博客中提到，酒店搜索列表请求报文的请求体是protobuf结构。 根据分析，在这个protobuf结构中，有一个编码对应的字段是head，而head也是一个protobuf结构，head里面有一个字段是clientToken，这在protobuf结构中，属于内层嵌套。 本次的分析目标就是clientToken，同样是简略介绍（怕被投诉）。 clientToken来源于服务器，客">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623120831160.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623120807868.png">
+<meta property="article:published_time" content="2025-06-23T01:26:27.000Z">
+<meta property="article:modified_time" content="2025-06-23T04:15:02.130Z">
 <meta property="article:author" content="X14Nuy">
+<meta property="article:tag" content="协议字段分析">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623120831160.png">
 
 
-<link rel="canonical" href="http://example.com/tags/angr/">
+<link rel="canonical" href="http://example.com/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"tags/angr/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/","path":"2025/06/23/某旅游app分析（2）/","title":"某旅游app分析（2）"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>标签: angr | Hexo</title>
+<title>某旅游app分析（2） | Hexo</title>
   
 
 
@@ -139,7 +147,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -152,6 +160,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%90%E4%B8%AA%E5%AD%97%E6%AE%B5%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">某个字段分析</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -185,50 +194,114 @@
 
     </div>
 
-    <div class="main-inner tag posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">angr
-          <small>标签</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="某旅游app分析（2） | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          某旅游app分析（2）
         </h1>
-      </div>
 
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
+
+      <time title="创建时间：2025-06-23 09:26:27 / 修改时间：12:15:02" itemprop="dateCreated datePublished" datetime="2025-06-23T09:26:27+08:00">2025-06-23</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>374</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="某个字段分析"><a href="#某个字段分析" class="headerlink" title="某个字段分析"></a>某个字段分析</h1><p>在前一篇博客中提到，酒店搜索列表请求报文的请求体是protobuf结构。</p>
+<p>根据分析，在这个protobuf结构中，有一个编码对应的字段是head，而head也是一个protobuf结构，head里面有一个字段是clientToken，这在protobuf结构中，属于内层嵌套。</p>
+<p>本次的分析目标就是clientToken，同样是简略介绍（怕被投诉）。</p>
+<p>clientToken来源于服务器，客户端发送clientID，服务端返回clientToken。</p>
+<p>追踪到某个so文件里，发现clientToken与md5有关，而且md5是魔改的——具体怎么魔改的就不说了，也不难。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623120831160.png" alt="image-20250623120831160"></p>
+<p>复现了魔改的md5，得到了一模一样的值。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623120807868.png" alt="image-20250623120807868"></p>
+<p>其实最难的地方（也不难）就在于魔改md5，其它的都是一些验证方面的设置——构造特定的clientID数值，才能拿到clientToken。</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2025-05-29T17:27:46+08:00"
-              content="2025-05-29">
-          05-29
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/05/29/angr%E4%B8%8E%E5%8E%BB%E6%B7%B7%E6%B7%86/" itemprop="url">
-            <span itemprop="name">初学angr与去混淆</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8D%8F%E8%AE%AE%E5%AD%97%E6%AE%B5%E5%88%86%E6%9E%90/" rel="tag"># 协议字段分析</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/20/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%881%EF%BC%89/" rel="prev" title="某旅游app分析（1）">
+                  <i class="fa fa-angle-left"></i> 某旅游app分析（1）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-    </div>
-  </div>
-  
-  
-  
+
+
+
+
 
 </div>
   </main>
