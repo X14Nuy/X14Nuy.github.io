@@ -19,61 +19,22 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="自制脱壳机，将公开了源码的Fart6移植到Fart10，同时去除一些Fart特征。 loadClass的过程loadClass的过程可以总结成：1.判断是否是当前类加载器加载了此类；2.若不是，让父加载器加载此类；3.若父加载器加载失败，由当前加载器加载。 一般实现类加载，同时使用ClassLoader的实例调用loadClass。  可以看到，ClassLoader.loadClass(Stri">
-<meta property="og:type" content="article">
-<meta property="og:title" content="类加载与脱壳机">
-<meta property="og:url" content="http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/default-index/page/3/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="自制脱壳机，将公开了源码的Fart6移植到Fart10，同时去除一些Fart特征。 loadClass的过程loadClass的过程可以总结成：1.判断是否是当前类加载器加载了此类；2.若不是，让父加载器加载此类；3.若父加载器加载失败，由当前加载器加载。 一般实现类加载，同时使用ClassLoader的实例调用loadClass。  可以看到，ClassLoader.loadClass(Stri">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193342573.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193434035.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423194242183.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423195152864.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423203016909.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423203338637.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424093826619.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424104135348.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193434035.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423213829616.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423215020680.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423220734893.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423221852117.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423222628102.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423223224521.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423223802545.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423224106202.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423224207810.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423221852117.png">
-<meta property="og:image" content="http://example.com/assets/image-20250423230919815.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423231002943.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423231252117.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424105954640.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424140948995.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424142218357.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424144226011.png">
-<meta property="og:image" content="http://example.com/assets/image-20250424144506020.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424145459019.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424150802221.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424150959405.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250424201851497.png">
-<meta property="og:image" content="http://example.com/assets/image-20250424193856630.png">
-<meta property="og:image" content="http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/%E5%88%B6%E4%BD%9C%E8%84%B1%E5%A3%B3%E6%9C%BA.assets/659397_VSXS7G8WNMTJTVH.png">
-<meta property="article:published_time" content="2025-05-18T09:11:40.000Z">
-<meta property="article:modified_time" content="2025-05-18T09:34:54.264Z">
 <meta property="article:author" content="X14Nuy">
-<meta property="article:tag" content="安卓逆向 类加载 Fart">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193342573.png">
 
 
-<link rel="canonical" href="http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/">
+<link rel="canonical" href="http://example.com/default-index/page/3/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/","path":"2025/05/18/类加载与脱壳机/","title":"类加载与脱壳机"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"default-index/page/3/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>类加载与脱壳机 | Hexo</title>
+<title>Hexo</title>
   
 
 
@@ -125,7 +86,7 @@
 
     <a href="/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <p class="site-title">Hexo</p>
+      <h1 class="site-title">Hexo</h1>
       <i class="logo-line"></i>
     </a>
   </div>
@@ -178,7 +139,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -191,7 +152,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#loadClass%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">loadClass的过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-findLoadedClass%EF%BC%88ClassLoader%EF%BC%89%E2%80%94%E2%80%94%E6%9F%A5%E8%AF%A2%E5%BD%93%E5%89%8D%E5%8A%A0%E8%BD%BD%E5%99%A8%E6%98%AF%E5%90%A6%E5%8A%A0%E8%BD%BD%E4%BA%86%E7%9B%AE%E6%A0%87%E7%B1%BB"><span class="nav-number">1.1.</span> <span class="nav-text">1 findLoadedClass（ClassLoader）——查询当前加载器是否加载了目标类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#findLoadedClass%EF%BC%88VMClassaLoader%E3%80%81JNI%E5%87%BD%E6%95%B0%EF%BC%89"><span class="nav-number">1.1.1.</span> <span class="nav-text">findLoadedClass（VMClassaLoader、JNI函数）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LookupClass"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">LookupClass</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#LookupClassFromTableLocked"><span class="nav-number">1.1.1.1.1.</span> <span class="nav-text">LookupClassFromTableLocked</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LookupClassFromImage"><span class="nav-number">1.1.1.1.2.</span> <span class="nav-text">LookupClassFromImage</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-parent-loadClass%E2%80%94%E2%80%94%E5%A7%94%E6%89%98%E7%88%B6%E5%8A%A0%E8%BD%BD%E5%99%A8%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.2.</span> <span class="nav-text">2 parent.loadClass——委托父加载器加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-findClass%E2%80%94%E2%80%94%E8%87%AA%E5%B7%B1%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.3.</span> <span class="nav-text">3 findClass——自己加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pathList%E2%80%94%E2%80%94%E5%B1%9E%E4%BA%8E%E7%B1%BBDexPathList"><span class="nav-number">1.3.1.</span> <span class="nav-text">pathList——属于类DexPathList</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dexElements%E2%80%94%E2%80%94%E5%B1%9E%E4%BA%8E%E7%B1%BBElement"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">dexElements——属于类Element</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#mCookie%E2%80%94%E2%80%94%E5%B1%9E%E4%BA%8E%E7%B1%BBDexFile"><span class="nav-number">1.3.1.1.1.</span> <span class="nav-text">mCookie——属于类DexFile</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#loadClassBinaryName%E2%80%94%E2%80%94%E5%B1%9E%E4%BA%8E%E7%B1%BBDexFile"><span class="nav-number">1.3.1.1.2.</span> <span class="nav-text">loadClassBinaryName——属于类DexFile</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#FindClassDef%E2%80%94%E2%80%94%E6%89%BE%E5%88%B0%E7%B1%BB%E5%AE%9A%E4%B9%89"><span class="nav-number">1.3.1.1.2.1.</span> <span class="nav-text">FindClassDef——找到类定义</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#RegisterDexFile%E2%80%94%E2%80%94%E5%B0%86DexFile%E5%8A%A0%E5%85%A5%E7%BC%93%E5%AD%98"><span class="nav-number">1.3.1.1.2.2.</span> <span class="nav-text">RegisterDexFile——将DexFile加入缓存</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#DefineClass%E2%80%94%E2%80%94%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E3%80%81%E9%93%BE%E6%8E%A5%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.3.1.1.2.3.</span> <span class="nav-text">DefineClass——类的加载、链接、初始化</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Fart%E7%9A%84%E9%80%BB%E8%BE%91"><span class="nav-number">2.</span> <span class="nav-text">Fart的逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E5%A3%B3"><span class="nav-number">2.1.</span> <span class="nav-text">整体壳</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%BD%E5%8F%96%E5%A3%B3"><span class="nav-number">2.2.</span> <span class="nav-text">抽取壳</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -225,17 +185,16 @@
 
     </div>
 
-    <div class="main-inner post posts-expand">
+    <div class="main-inner index posts-expand">
 
-
-  
+    
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -249,13 +208,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="类加载与脱壳机 | Hexo">
+      <meta itemprop="name" content=" | Hexo">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          类加载与脱壳机
-        </h1>
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E4%B8%8E%E8%84%B1%E5%A3%B3%E6%9C%BA/" class="post-title-link" itemprop="url">类加载与脱壳机</a>
+        </h2>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -293,7 +252,8 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>自制脱壳机，将公开了源码的Fart6移植到Fart10，同时去除一些Fart特征。</p>
+    <div class="post-body" itemprop="articleBody">
+          <p>自制脱壳机，将公开了源码的Fart6移植到Fart10，同时去除一些Fart特征。</p>
 <h1 id="loadClass的过程"><a href="#loadClass的过程" class="headerlink" title="loadClass的过程"></a>loadClass的过程</h1><p>loadClass的过程可以总结成：1.判断是否是当前类加载器加载了此类；2.若不是，让父加载器加载此类；3.若父加载器加载失败，由当前加载器加载。</p>
 <p>一般实现类加载，同时使用ClassLoader的实例调用loadClass。</p>
 <p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250423193342573.png" alt="image-20250423193342573"></p>
@@ -436,6 +396,7 @@
 <p>之后，又有人写了一个FartExt，逻辑如下。</p>
 <img src="./制作脱壳机.assets/659397_VSXS7G8WNMTJTVH.png" alt="659397_VSXS7G8WNMTJTVH" style="zoom:80%;" />
 
+      
     </div>
 
     
@@ -443,21 +404,8 @@
     
 
     <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91-%E7%B1%BB%E5%8A%A0%E8%BD%BD-Fart/" rel="tag"># 安卓逆向 类加载 Fart</a>
-          </div>
-
-        
-
-          <div class="post-nav">
-            <div class="post-nav-item">
-            </div>
-            <div class="post-nav-item">
-                <a href="/2025/05/18/UnCrackable-Level1%E5%88%86%E6%9E%90/" rel="next" title="UnCrackable-Level1分析">
-                  UnCrackable-Level1分析 <i class="fa fa-angle-right"></i>
-                </a>
-            </div>
-          </div>
+        <div class="post-eof"></div>
+      
     </footer>
   </article>
 </div>
@@ -465,7 +413,9 @@
 
 
 
-
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/default-index/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/default-index/">1</a><a class="page-number" href="/default-index/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
 
 </div>
   </main>

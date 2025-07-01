@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="分析字段：__NS_sig3 初步分析查壳&#x2F;查反调等利用工具，对apk进行一个初步判断。 似乎没有壳，那就不用脱壳了。  即便不做什么处理，我root后的手机，还是可以正常打开快手。   定位__NS_sig3的生成函数先在jadx中搜索，看看能否直接找到__NS_sig3的相关代码；如果不行，再试试hook HaspMap的put。 直接搜到了，那就直接再jadx中追踪了。  从这段代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ks&#x2F;sig3分析">
+<meta property="og:url" content="http://example.com/2025/07/01/ks-sig3%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="分析字段：__NS_sig3 初步分析查壳&#x2F;查反调等利用工具，对apk进行一个初步判断。 似乎没有壳，那就不用脱壳了。  即便不做什么处理，我root后的手机，还是可以正常打开快手。   定位__NS_sig3的生成函数先在jadx中搜索，看看能否直接找到__NS_sig3的相关代码；如果不行，再试试hook HaspMap的put。 直接搜到了，那就直接再jadx中追踪了。  从这段代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623150600246.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623151926210.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623153109921.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623184110143.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623193413808.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200734680.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200903209.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200927145.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200949608.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623201121861.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624133213139.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624133427607.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624134812613.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624135258494.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142448019.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142722093.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142754170.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142908780.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143324879.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143338678.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143355293.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152425956.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152503255.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152818814.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152838913.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152902265.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152938725.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152954664.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624154205541.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624170504631.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624175134710.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625111639967.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625115313177.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625115717885.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625144418429.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625161434306.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162034294.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162534946.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162834178.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625170120530.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627112711210.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627112737959.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627114224817.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627152421719.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627184717187.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627215223529.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627215156751.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628144948500.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628152206220.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628152444173.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628155455570.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628160428702.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629153431870.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629154704114.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629155642090.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629184620681.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629162305374.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629191029580.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629192132769.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629225110845.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629225249476.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629231042590.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629234640841.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630000912063.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630085152982.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630085317372.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630105048439.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630105301686.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630115638274.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630115957984.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630143629732.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144152920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144807369.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144825417.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630152039424.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154309863.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154344863.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154454278.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630164254200.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630182324242.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630165349886.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630165825546.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630172928250.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630201746906.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630192948412.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194424809.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194443002.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194505551.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194532102.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630195629327.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630195951640.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630202439641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630202728004.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630224657562.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630225923022.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630230021753.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630230744884.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630233053889.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630233850293.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701013043532.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012800757.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012834080.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012902860.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092041613.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092425536.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092643110.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701094117337.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701094449969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701095442973.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701095509469.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104955510.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701101620373.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701103945379.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104322347.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104851928.png">
+<meta property="article:published_time" content="2025-07-01T02:51:01.000Z">
+<meta property="article:modified_time" content="2025-07-01T03:00:51.686Z">
+<meta property="article:author" content="X14Nuy">
+<meta property="article:tag" content="慢脚">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623150600246.png">
+
+
+<link rel="canonical" href="http://example.com/2025/07/01/ks-sig3%E5%88%86%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/07/01/ks-sig3%E5%88%86%E6%9E%90/","path":"2025/07/01/ks-sig3分析/","title":"ks/sig3分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ks/sig3分析 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E6%AD%A5%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">初步分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E5%A3%B3-%E6%9F%A5%E5%8F%8D%E8%B0%83%E7%AD%89"><span class="nav-number">1.1.</span> <span class="nav-text">查壳&#x2F;查反调等</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D-NS-sig3%E7%9A%84%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">定位__NS_sig3的生成函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#sig"><span class="nav-number">1.2.1.</span> <span class="nav-text">sig</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0m160599c"><span class="nav-number">1.2.2.</span> <span class="nav-text">函数m160599c</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D%E7%94%9F%E6%88%90%E5%87%BD%E6%95%B0%E4%BD%8D%E4%BA%8E%E7%9A%84so%EF%BC%88-%E5%8E%BB%E9%99%A4%E8%8A%B1%E6%8C%87%E4%BB%A4%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">定位生成函数位于的so（&amp;&amp; 去除花指令）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unidbg%E8%A1%A5%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">Unidbg补环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B9%E5%8F%98%E8%BE%93%E5%85%A5"><span class="nav-number">3.1.</span> <span class="nav-text">改变输入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#urlObj"><span class="nav-number">3.1.1.</span> <span class="nav-text">urlObj</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#appkey"><span class="nav-number">3.1.2.</span> <span class="nav-text">appkey</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E6%88%B3"><span class="nav-number">3.1.3.</span> <span class="nav-text">时间戳</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#urlObj%E5%92%8C%E6%97%B6%E9%97%B4%E6%88%B3"><span class="nav-number">3.1.4.</span> <span class="nav-text">urlObj和时间戳</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-19%E5%AD%97%E8%8A%82"><span class="nav-number">3.2.</span> <span class="nav-text">16-19字节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#20-23%E5%AD%97%E8%8A%82"><span class="nav-number">3.3.</span> <span class="nav-text">20-23字节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-15%E5%AD%97%E8%8A%82"><span class="nav-number">3.4.</span> <span class="nav-text">12-15字节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CRC32"><span class="nav-number">3.4.1.</span> <span class="nav-text">CRC32</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AES"><span class="nav-number">3.4.2.</span> <span class="nav-text">AES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HMAC-SHA256"><span class="nav-number">3.4.3.</span> <span class="nav-text">HMAC-SHA256</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.4.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-7%E5%AD%97%E8%8A%82"><span class="nav-number">3.5.</span> <span class="nav-text">4-7字节</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">X14Nuy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/07/01/ks-sig3%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ks&#x2F;sig3分析 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ks/sig3分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-07-01 10:51:01 / 修改时间：11:00:51" itemprop="dateCreated datePublished" datetime="2025-07-01T10:51:01+08:00">2025-07-01</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>18k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>32 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>分析字段：__NS_sig3</p>
+<h1 id="初步分析"><a href="#初步分析" class="headerlink" title="初步分析"></a>初步分析</h1><h2 id="查壳-查反调等"><a href="#查壳-查反调等" class="headerlink" title="查壳&#x2F;查反调等"></a>查壳&#x2F;查反调等</h2><p>利用工具，对apk进行一个初步判断。</p>
+<p>似乎没有壳，那就不用脱壳了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623150600246.png" alt="image-20250623150600246"></p>
+<p>即便不做什么处理，我root后的手机，还是可以正常打开快手。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623151926210.png" alt="image-20250623151926210" style="zoom:80%;" />
+
+<h2 id="定位-NS-sig3的生成函数"><a href="#定位-NS-sig3的生成函数" class="headerlink" title="定位__NS_sig3的生成函数"></a>定位__NS_sig3的生成函数</h2><p>先在jadx中搜索，看看能否直接找到__NS_sig3的相关代码；如果不行，再试试hook HaspMap的put。</p>
+<p>直接搜到了，那就直接再jadx中追踪了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623153109921.png" alt="image-20250623153109921"></p>
+<p>从这段代码中，可以知道__NS_sig3的长度是32字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623184110143.png" alt="image-20250623184110143"></p>
+<p>hook函数m160592a，获得request。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623193413808.png" alt="image-20250623193413808"></p>
+<p>下面这些请求路径不需要字段__NS_sig3。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;/rest/system/startup&quot;</span>, <span class="string">&quot;/rest/n/system/abtest/config&quot;</span>, <span class="string">&quot;/rest/system/keyconfig&quot;</span>, <span class="string">&quot;/rest/n/system/realtime/startup&quot;</span>, <span class="string">&quot;/rest/n/live/config/startup&quot;</span>, <span class="string">&quot;/rest/n/feed/hotFast&quot;</span>, <span class="string">&quot;/rest/n/feed/selectionFast&quot;</span>, <span class="string">&quot;/rest/n/encourage/startup&quot;</span>, <span class="string">&quot;/rest/zt/share/system/startup&quot;</span>, <span class="string">&quot;/rest/system/startup&quot;</span>, <span class="string">&quot;/rest/im/wd/user/startup/push&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在分析__NS_sig3的加密流程之前，注意到，加密函数m160594c的输入是encodePath + str，encodePath不必多说，而这里的str是一个长度为32的字符串（相当于16字节，大概率是md5），接下来分析它是从哪里来的。</p>
+<h3 id="sig"><a href="#sig" class="headerlink" title="sig"></a>sig</h3><p>下列图表示我的追踪“轨迹”。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200734680.png" alt="image-20250623200734680"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200903209.png" alt="image-20250623200903209" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200927145.png" alt="image-20250623200927145" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623200949608.png" alt="image-20250623200949608"></p>
+<p>假如要使用Sig3，需要清空bodyParam。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250623201121861.png" alt="image-20250623201121861" style="zoom: 67%;" />
+
+<p>用IDA打开getClock对应的libcore。</p>
+<p>函数sub_1908出现了md5魔数。——md5_init。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624133213139.png" alt="image-20250624133213139" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624133427607.png" alt="image-20250624133427607" style="zoom:80%;" />
+
+<p>函数sub_1934是md5_update，函数sub_1A4C是md5_transform。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624134812613.png" alt="image-20250624134812613" style="zoom:80%;" />
+
+<p>函数sub_19C0是md5_final。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624135258494.png" alt="image-20250624135258494" style="zoom:80%;" />
+
+<p>所以，sig就是urlParams、bodyParams、sdk_version等数据经过md5处理的结果，这里就不去验证是不是标准md5了。</p>
+<h3 id="函数m160599c"><a href="#函数m160599c" class="headerlink" title="函数m160599c"></a>函数m160599c</h3><p>下列图为追踪顺序。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142448019.png" alt="image-20250624142448019" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142722093.png" alt="image-20250624142722093"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142754170.png" alt="image-20250624142754170" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624142908780.png" alt="image-20250624142908780"></p>
+<p>追踪函数m33365b。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143324879.png" alt="image-20250624143324879" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143338678.png" alt="image-20250624143338678" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624143355293.png" alt="image-20250624143355293"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152425956.png" alt="image-20250624152425956" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152503255.png" alt="image-20250624152503255"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152818814.png" alt="image-20250624152818814"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152838913.png" alt="image-20250624152838913"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152902265.png" alt="image-20250624152902265"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152938725.png" alt="image-20250624152938725"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624152954664.png" alt="image-20250624152954664" style="zoom: 80%;" />
+
+<p>在函数doCommandNative处hook，打印调用栈。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624154205541.png" alt="image-20250624154205541"></p>
+<p>hook一下函数doCommandNative的参数，看看是什么。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">str2</span> <span class="operator">=</span> (String) <span class="built_in">this</span>.f46796k.mo33427a().mo33476a(</span><br><span class="line">    <span class="number">10418</span>, </span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="keyword">new</span> <span class="title class_">String</span>(abstractC16338n.mo33447e()).trim()&#125;, <span class="comment">// strEncodePath + str</span></span><br><span class="line">    C16278b.m33236i().m33242j().mo33327a(), </span><br><span class="line">    -<span class="number">1</span>, </span><br><span class="line">    Boolean.FALSE, </span><br><span class="line">    C16278b.m33236i().m33242j().mo33328c(), </span><br><span class="line">    <span class="literal">null</span>, </span><br><span class="line">    Boolean.valueOf(abstractC16338n.mo33448f()), </span><br><span class="line">    abstractC16338n.mo33455m()); <span class="comment">// 空字符串</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624170504631.png" alt="image-20250624170504631"></p>
+<h2 id="定位生成函数位于的so（-去除花指令）"><a href="#定位生成函数位于的so（-去除花指令）" class="headerlink" title="定位生成函数位于的so（&amp;&amp; 去除花指令）"></a>定位生成函数位于的so（&amp;&amp; 去除花指令）</h2><p>跑一下脚本，看看doCommandNative在哪个so里。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250624175134710.png" alt="image-20250624175134710"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: doCommandNative sig: (I[Ljava/lang/Object;)Ljava/lang/Object; fnPtr: <span class="number">0xa3cd0435</span>  fnOffset: <span class="number">0xa3cd0435</span> libkwsgmain.so!<span class="number">0x46435</span>  callee: <span class="number">0xa3cd77fb</span> libkwsgmain.so!<span class="number">0x4d7fb</span></span><br></pre></td></tr></table></figure>
+
+<p>位于libkwsgmain.so，偏移0x46435。</p>
+<p>好像存在一些加密代码？试一下从内存中dump下来，然后修补。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625111639967.png" alt="image-20250625111639967" style="zoom:80%;" />
+
+<p>dump。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625115313177.png" alt="image-20250625115313177"></p>
+<p>修复。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625115717885.png" alt="image-20250625115717885"></p>
+<p>突然想起来，偏移0x46435，说明是thumb指令，应该从0x46434开始算起。</p>
+<p>上来就是BL跳转。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625144418429.png" alt="image-20250625144418429"></p>
+<p>在sub_B764中，LR &#x3D; 0x46448，而R0是未知的，需要回到0x46434查找。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625161434306.png" alt="image-20250625161434306" style="zoom:80%;" />
+
+<p>R0 &#x3D; 0x1fa。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162034294.png" alt="image-20250625162034294"></p>
+<p>R1 &#x3D; [0x46c30]</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162534946.png" alt="image-20250625162534946"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625162834178.png" alt="image-20250625162834178"></p>
+<p>而0x46448 + 0x5C60 &#x3D;&#x3D; 0x4C0A8，PC &#x3D; 0x4C0A8。</p>
+<p>然而，0x4C0A8处也没有函数定义，这样不好分析。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250625170120530.png" alt="image-20250625170120530"></p>
+<p>然而，在最新版本的快手中，不是这个样子的方式跳转的。</p>
+<p>重新跑了1次hook RegisterNatives的脚本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: doCommandNative sig: (I[Ljava/lang/Object;)Ljava/lang/Object; fnPtr: 0x7bb8184cd4  fnOffset: 0x7bb8184cd4 libkwsgmain.so!0x40cd4  callee: 0x7bb818a164 libkwsgmain.so!0x46164</span><br></pre></td></tr></table></figure>
+
+<p>BR混淆。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627112711210.png" alt="image-20250627112711210"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627112737959.png" alt="image-20250627112737959" style="zoom:80%;" />
+
+<p>上述的计算，可以整理成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">X0, X1放入栈中</span><br><span class="line"></span><br><span class="line">; 下面计算X9的值</span><br><span class="line">STP X2, X30, [SP + 0x10]	;[SP+0x18] = X30</span><br><span class="line">ADR	X1, dword_40cfc			;X1 = 0x40cfc</span><br><span class="line">X1 = X1 - 0x4</span><br><span class="line">X0 = X1</span><br><span class="line">X0 = X0 + 0x14</span><br><span class="line">[SP+0x18] = X0</span><br><span class="line">LDP X2, X9, [SP + 0x10]</span><br><span class="line"></span><br><span class="line">X0, X1 = 原来的内容</span><br><span class="line">BR X9</span><br></pre></td></tr></table></figure>
+
+<p>只要我们知道X30的值，就可以利用keypatch将BR X9改成B xxxx。</p>
+<p>JNI_OnLoad也是这样的混淆。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627114224817.png" alt="image-20250627114224817"></p>
+<p>直接用一个IDA脚本，遍历so文件。——获得3个操作数，然后在BR X9处进行修改。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> keystone</span><br><span class="line"><span class="keyword">from</span> keystone <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> ida_bytes</span><br><span class="line"><span class="keyword">import</span> idaapi</span><br><span class="line"><span class="keyword">import</span> idc</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pattern_search</span>(<span class="params">pattern</span>):</span><br><span class="line">    match_list = []</span><br><span class="line">    addr = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        addr = ida_bytes.bin_search(addr, idc.BADADDR, <span class="built_in">bytes</span>.fromhex(pattern), <span class="literal">None</span>, </span><br><span class="line">                                idaapi.BIN_SEARCH_FORWARD, idaapi.BIN_SEARCH_NOCASE)</span><br><span class="line">        <span class="keyword">if</span> addr == idc.BADADDR:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            match_list.append(addr)</span><br><span class="line">            addr = addr + <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> match_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_jumpout_addr</span>(<span class="params">addr</span>):</span><br><span class="line">    data1 = idc.get_operand_value(addr + <span class="number">8</span>, <span class="number">1</span>)</span><br><span class="line">    data2 = idc.get_operand_value(addr + <span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">    data3 = idc.get_operand_value(addr + <span class="number">20</span>, <span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> data1 - data2 + data3</span><br><span class="line">    </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_asm</span>(<span class="params">code, addr</span>):</span><br><span class="line">    ks = Ks(keystone.KS_ARCH_ARM64, keystone.KS_MODE_LITTLE_ENDIAN)</span><br><span class="line">    encode, count = ks.asm(code, addr)</span><br><span class="line">    <span class="keyword">return</span> encode</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    match_list = pattern_search(<span class="string">&quot;E0 07 BE A9 E2 7B 01 A9&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">len</span>(match_list))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(match_list)):</span><br><span class="line">        encode_b = generate_asm(<span class="string">&quot;B &quot;</span> + <span class="built_in">str</span>(<span class="built_in">hex</span>(get_jumpout_addr(match_list[i]))), match_list[i])</span><br><span class="line">        encode_nop = generate_asm(<span class="string">&quot;nop&quot;</span>, <span class="number">0</span>)</span><br><span class="line">        ida_bytes.patch_bytes(match_list[i], <span class="built_in">bytes</span>(encode_b))</span><br><span class="line">        ida_bytes.patch_bytes(match_list[i] + <span class="number">4</span>, <span class="built_in">bytes</span>(encode_nop) * <span class="number">9</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<p>执行完后是这样的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627152421719.png" alt="image-20250627152421719"></p>
+<h1 id="Unidbg补环境"><a href="#Unidbg补环境" class="headerlink" title="Unidbg补环境"></a>Unidbg补环境</h1><p>先搭最基本的架子。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.ks;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.AndroidEmulator;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.Module;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.arm.backend.Unicorn2Factory;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.AndroidEmulatorBuilder;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.AndroidResolver;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.dvm.*;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.dvm.array.ArrayObject;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.dvm.wrapper.DvmBoolean;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.linux.android.dvm.wrapper.DvmInteger;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.memory.Memory;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.virtualmodule.android.AndroidModule;</span><br><span class="line"><span class="keyword">import</span> com.github.unidbg.virtualmodule.android.JniGraphics;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.File;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">sig3</span> <span class="keyword">extends</span> <span class="title class_">AbstractJni</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AndroidEmulator emulator;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> VM vm;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Module <span class="keyword">module</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Memory memory;</span><br><span class="line"></span><br><span class="line">    sig3()&#123;</span><br><span class="line">        emulator = AndroidEmulatorBuilder.for64Bit()</span><br><span class="line">                .setProcessName(<span class="string">&quot;com.smile.gifmaker&quot;</span>)</span><br><span class="line">                .addBackendFactory(<span class="keyword">new</span> <span class="title class_">Unicorn2Factory</span>(<span class="literal">true</span>))  <span class="comment">// 处理器类型</span></span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置执行多少条指令切换一次线程</span></span><br><span class="line">        emulator.getBackend().registerEmuCountHook(<span class="number">10000</span>);</span><br><span class="line">        <span class="comment">// 开启日志</span></span><br><span class="line">        emulator.getSyscallHandler().setVerbose(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 开启线程调度器</span></span><br><span class="line">        emulator.getSyscallHandler().setEnableThreadDispatcher(<span class="literal">true</span>);</span><br><span class="line">        memory = emulator.getMemory(); <span class="comment">// 模拟器的内存操作接口</span></span><br><span class="line">        memory.setLibraryResolver(<span class="keyword">new</span> <span class="title class_">AndroidResolver</span>(<span class="number">23</span>)); <span class="comment">// 设置系统类库解</span></span><br><span class="line">        <span class="comment">//创建虚拟机并指定APK文件</span></span><br><span class="line">        vm = emulator.createDalvikVM(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;unidbg-android/src/test/resources/ks_pack/ks.apk&quot;</span>));</span><br><span class="line">        <span class="comment">// 设置是否打印Jni调用细节</span></span><br><span class="line">        vm.setVerbose(<span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 补jni方法</span></span><br><span class="line">        vm.setJni(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 加载so</span></span><br><span class="line">        <span class="type">DalvikModule</span> <span class="variable">dm</span> <span class="operator">=</span> vm.loadLibrary(<span class="string">&quot;kwsgmain&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">        <span class="comment">// 加载好的libkwsgmain.so对应为一个模块</span></span><br><span class="line">        <span class="keyword">module</span> = dm.getModule();</span><br><span class="line">        <span class="comment">// 手动执行JNI_OnLoad函数</span></span><br><span class="line">        dm.callJNI_OnLoad(emulator);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">sig3</span> <span class="variable">_sig3</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">sig3</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对照着之前的调用参数，添加调用doCommandNative的代码。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627184717187.png" alt="image-20250627184717187"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">get_Sig3</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">DvmClass</span> <span class="variable">JNICLibrary</span> <span class="operator">=</span> vm.resolveClass(<span class="string">&quot;com.kuaishou.android.security.internal.dispatch.JNICLibrary&quot;</span>);</span><br><span class="line">    <span class="type">StringObject</span> <span class="variable">urlObj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;xianyu&quot;</span>);</span><br><span class="line">    <span class="type">StringObject</span> <span class="variable">appkey</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;d7b7d042-d4f2-4012-be60-d97ff2429c17&quot;</span>);</span><br><span class="line">    <span class="type">DvmInteger</span> <span class="variable">intergetobj</span> <span class="operator">=</span> DvmInteger.valueOf(vm, -<span class="number">1</span>);</span><br><span class="line">    <span class="type">DvmBoolean</span> <span class="variable">boolobj</span> <span class="operator">=</span> DvmBoolean.valueOf(vm, <span class="literal">false</span>);</span><br><span class="line">    DvmObject&lt;?&gt; context = vm.resolveClass(<span class="string">&quot;com/yxcorp/gifshow/App&quot;</span>).newObject(<span class="literal">null</span>); <span class="comment">// context</span></span><br><span class="line">    <span class="type">StringObject</span> <span class="variable">appkey2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;&quot;</span>);</span><br><span class="line">    <span class="type">ArrayObject</span> <span class="variable">arg2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayObject</span>(<span class="keyword">new</span> <span class="title class_">ArrayObject</span>(urlObj), appkey, intergetobj, boolobj, context, <span class="literal">null</span>, boolobj, appkey2);</span><br><span class="line">    <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> JNICLibrary.callStaticJniMethodObject(emulator,<span class="string">&quot;doCommandNative(I[Ljava/lang/Object;)Ljava/lang/Object;&quot;</span>,<span class="number">10418</span>,arg2).getValue().toString();</span><br><span class="line">    System.out.println(result);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>报错如下，提示返回值是null。</p>
+<p>一般这种情况，都是调用so接口的时候，没有初始化导致的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Exception in thread <span class="string">&quot;main&quot;</span> java.lang.NullPointerException: Cannot invoke <span class="string">&quot;com.github.unidbg.linux.android.dvm.DvmObject.getValue()&quot;</span> because the <span class="keyword">return</span> value of <span class="string">&quot;com.github.unidbg.linux.android.dvm.DvmClass.callStaticJniMethodObject(com.github.unidbg.Emulator, String, Object[])&quot;</span> is <span class="literal">null</span></span><br><span class="line">	at com.ks.sig3.get_Sig3(sig3.java:<span class="number">63</span>)</span><br><span class="line">	at com.ks.sig3.main(sig3.java:<span class="number">69</span>)</span><br></pre></td></tr></table></figure>
+
+<p>libkwsgmain.so里面，一共注册了5个函数，把它们hook起来，不过似乎并没有什么关联。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: doCommandNative sig: (I[Ljava/lang/Object;)Ljava/lang/Object; fnPtr: <span class="number">0x7bb8184cd4</span>  fnOffset: <span class="number">0x7bb8184cd4</span> libkwsgmain.so!<span class="number">0x40cd4</span>  callee: <span class="number">0x7bb818a164</span> libkwsgmain.so!<span class="number">0x46164</span></span><br><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: gDBF sig: ()J fnPtr: <span class="number">0x7bb81848a4</span>  fnOffset: <span class="number">0x7bb81848a4</span> libkwsgmain.so!<span class="number">0x408a4</span>  callee: <span class="number">0x7bb818a164</span> libkwsgmain.so!<span class="number">0x46164</span></span><br><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: dCaBk sig: (ILjava/lang/String;[BI)V fnPtr: <span class="number">0x7bb8184948</span>  fnOffset: <span class="number">0x7bb8184948</span> libkwsgmain.so!<span class="number">0x40948</span>  callee: <span class="number">0x7bb818a164</span> libkwsgmain.so!<span class="number">0x46164</span></span><br><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: gDGI sig: ()[Ljava/lang/String; fnPtr: <span class="number">0x7bb81843bc</span>  fnOffset: <span class="number">0x7bb81843bc</span> libkwsgmain.so!<span class="number">0x403bc</span>  callee: <span class="number">0x7bb818a164</span> libkwsgmain.so!<span class="number">0x46164</span></span><br><span class="line">[RegisterNatives] java_class: com.kuaishou.android.security.internal.dispatch.JNICLibrary name: gKSF sig: ()J fnPtr: <span class="number">0x7bb81847f0</span>  fnOffset: <span class="number">0x7bb81847f0</span> libkwsgmain.so!<span class="number">0x407f0</span>  callee: <span class="number">0x7bb818a164</span> libkwsgmain.so!<span class="number">0x46164</span></span><br></pre></td></tr></table></figure>
+
+<p>同时，注意到Command ID也是有不同的，打印一下args[2]。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627215223529.png" alt="image-20250627215223529"></p>
+<p>可以发现，在第一时间内只会调用1次command ID &#x3D; 0x28ac，这大概率是初始化的一部分。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250627215156751.png" alt="image-20250627215156751" style="zoom:80%;" />
+
+<p>所以，加一个执行10412的函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">moduleInit</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">DvmClass</span> <span class="variable">JNICLibrary</span> <span class="operator">=</span> vm.resolveClass(<span class="string">&quot;com.kuaishou.android.security.internal.dispatch.JNICLibrary&quot;</span>);</span><br><span class="line">    <span class="type">StringObject</span> <span class="variable">appkey</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;d7b7d042-d4f2-4012-be60-d97ff2429c17&quot;</span>);</span><br><span class="line">    DvmObject&lt;?&gt; context = vm.resolveClass(<span class="string">&quot;com/yxcorp/gifshow/App&quot;</span>).newObject(<span class="literal">null</span>); <span class="comment">// context</span></span><br><span class="line">    <span class="type">ArrayObject</span> <span class="variable">arg2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayObject</span>(<span class="literal">null</span>, appkey, <span class="literal">null</span>, <span class="literal">null</span>, context, <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">    JNICLibrary.callStaticJniMethodObject(emulator,<span class="string">&quot;doCommandNative(I[Ljava/lang/Object;)Ljava/lang/Object;&quot;</span>,<span class="number">10412</span>,arg2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>之后遇到缺少类的错误。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">callStaticVoidMethodV</span><span class="params">(BaseVM vm, DvmClass dvmClass, String signature, VaList vaList)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (signature) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/kuaishou/android/security/internal/common/ExceptionProxy-&gt;nativeReport(ILjava/lang/String;)V&quot;</span>:</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> DvmObject&lt;?&gt; callStaticObjectMethodV(BaseVM vm, DvmClass dvmClass, String signature, VaList vaList) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (signature) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/kuaishou/android/security/internal/common/ExceptionProxy-&gt;getProcessName(Landroid/content/Context;)Ljava/lang/String;&quot;</span>:</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;com.smile.gifmaker&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">super</span>.callStaticObjectMethodV(vm, dvmClass, signature, vaList);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> DvmObject&lt;?&gt; callObjectMethodV(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VaList vaList) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (signature) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/yxcorp/gifshow/App-&gt;getPackageCodePath()Ljava/lang/String;&quot;</span>: &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;/data/app/com.smile.gifmaker-VZhzinzcefoqqzJZ47EE0A==/base.apk&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/yxcorp/gifshow/App-&gt;getPackageName()Ljava/lang/String;&quot;</span>: &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, <span class="string">&quot;com.smile.gifmaker&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/yxcorp/gifshow/App-&gt;getAssets()Landroid/content/res/AssetManager;&quot;</span>: &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AssetManager</span>(vm, signature);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;com/yxcorp/gifshow/App-&gt;getPackageManager()Landroid/content/pm/PackageManager;&quot;</span>: &#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> vm.resolveClass(<span class="string">&quot;android.content.pm.PackageManager&quot;</span>).newObject(signature);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">super</span>.callObjectMethodV(vm, dvmObject, signature, vaList);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>仍然报错空指针，对比了一些和其它人博客的区别。</p>
+<p>补了一句↓，这样就可以正常跑出结果了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">AndroidModule</span>(emulator, vm).register(memory);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628144948500.png" alt="image-20250628144948500"></p>
+<p>每跑一次，都会有一个新结果，为了固定结果，需要将时间戳、随机数导致的，修改下面这个文件的currentTimeMillis()。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">src/main/java/com/github/unidbg/unix/UnixSyscallHandler.java</span><br></pre></td></tr></table></figure>
+
+<p>固定一下，时间固定成1751095318144。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628152206220.png" alt="image-20250628152206220"></p>
+<p>结果固定为c4d5a086d88864b88c8c8f8ef7c6668e830cc8fe919d9385。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628152444173.png" alt="image-20250628152444173"></p>
+<p>trace指令流。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">traceCode</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">traceFile</span> <span class="operator">=</span> <span class="string">&quot;unidbg-android/src/test/java/com/ks/traceCode.log&quot;</span>; <span class="comment">// 输出的路径</span></span><br><span class="line">    <span class="type">PrintStream</span> <span class="variable">traceStream</span> <span class="operator">=</span> <span class="literal">null</span>; <span class="comment">// 打印流</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        traceStream = <span class="keyword">new</span> <span class="title class_">PrintStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(traceFile), <span class="literal">true</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (FileNotFoundException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// traceCode 对代码进行监控</span></span><br><span class="line">    emulator.traceCode(<span class="keyword">module</span>.base, <span class="keyword">module</span>.base + <span class="keyword">module</span>.size).setRedirect(traceStream);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>在文件traceCode.log中，追踪结果“c4d5a086d88864b88c8c8f8ef7c6668e830cc8fe919d9385”。——这里的字符串是之前分析小红书的时候，修改Unidbg得到的。</p>
+<p>第一次出现的地址在：0x13b9c，位于函数sub_13b54内。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628155455570.png" alt="image-20250628155455570"></p>
+<p>函数sub_13B54将result中的结果提取到a2中，a2是一个string类型（从sso优化看出来的）。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250628160428702.png" alt="image-20250628160428702" style="zoom:80%;" />
+
+<p>观察trace日志，结果位于[x0+0x28]的位置，而x0是调用sub_13b54传入的入参。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629153431870.png" alt="image-20250629153431870"></p>
+<p>在函数sub_3CC28内调用了sub_13B54，对这个函数进行分析，发现a1是v9的来源，因此hook函数sub_3cc28。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629154704114.png" alt="image-20250629154704114"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629155642090.png" alt="image-20250629155642090" style="zoom: 67%;" />
+
+<p>查看sub_3cc28的引用。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629184620681.png" alt="image-20250629184620681" style="zoom:80%;" />
+
+<p>根据日志，发现是从0x44c8c跳转过来的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629162305374.png" alt="image-20250629162305374"></p>
+<p>0x44c8c不在定义的函数内，于是我在日志中，划分了一个函数。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629191029580.png" alt="image-20250629191029580" style="zoom:80%;" />
+
+<p>这个函数的栈不平衡，但勉强可以用来分析，总比纯看汇编方便。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629192132769.png" alt="image-20250629192132769"></p>
+<p>观察v98，注意到，循环次数是23次，但最后的结果是24字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629225110845.png" alt="image-20250629225110845"></p>
+<p>对着地址0x44c04下断点。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629225249476.png" alt="image-20250629225249476"></p>
+<p>下图是第一次执行到0x44c04的结果，会发现，最后一个字节已经赋了正确的值。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629231042590.png" alt="image-20250629231042590" style="zoom:80%;" />
+
+<p>最后一个字节是单独赋值的，可以关注一下这里的v101。	</p>
+<p>v101的高8位是：v48的低8位 | v49的高8位，v48源于前23个字节累加然后取负。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250629234640841.png" alt="image-20250629234640841"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630000912063.png" alt="image-20250630000912063"></p>
+<p>而v49来自一个略微复杂的计算。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v49 = ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">53</span>) &amp; <span class="number">0x10</span> | ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">54</span>) &amp; <span class="number">0x20</span> | ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">44</span>) &amp; <span class="number">0x40</span> | v46 | <span class="number">0xD00</span>;</span><br></pre></td></tr></table></figure>
+
+<p>对红色框里的v98进行hook，查看24个字节在异或之前是什么样的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630085152982.png" alt="image-20250630085152982"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 59 08 e7 3a 01 00 00 00 7e 4e ed 04 16 98 5f 68 00 0d 00 85</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630085317372.png" alt="image-20250630085317372"></p>
+<h2 id="改变输入"><a href="#改变输入" class="headerlink" title="改变输入"></a>改变输入</h2><p>有3个可以改变的输入，url、appkey、时间戳，观察改变输入后，内容有什么不同。</p>
+<h3 id="urlObj"><a href="#urlObj" class="headerlink" title="urlObj"></a>urlObj</h3><p>输入：”xianyu” -&gt; “x14nuy”。</p>
+<p>v49的值未变，0xd00 -&gt; 0xd00。</p>
+<p>v98的12-15字节发生了变化，最后1个字节之所以变了，是因为前23字节存在变化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 59 08 e7 3a 01 00 00 00 |7e 4e ed 04| 16 98 5f 68 00 0d 00 85</span><br><span class="line">↓↓↓</span><br><span class="line">41 51 27 00 59 08 e7 3a 01 00 00 00 |7f 7c 00 53| 16 98 5f 68 00 0d 00 f4</span><br></pre></td></tr></table></figure>
+
+<h3 id="appkey"><a href="#appkey" class="headerlink" title="appkey"></a>appkey</h3><p>输入：”d7b7d042-d4f2-4012-be60-d97ff2429c17” -&gt; “d7b7d042-d4f2-4012-60be-d97ff2429c17”。</p>
+<p>不能改，改了就报错。</p>
+<h3 id="时间戳"><a href="#时间戳" class="headerlink" title="时间戳"></a>时间戳</h3><p>输入：”1751095318144L” -&gt; “1751095318145L”。</p>
+<p>v49的值未变，0xd00 -&gt; 0xd00。</p>
+<p>v98的值未变，可能是时间戳改动太小了？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 59 08 e7 3a 01 00 00 00 7e 4e ed 04 16 98 5f 68 00 0d 00 85</span><br><span class="line">↓↓↓</span><br><span class="line">41 51 27 00 59 08 e7 3a 01 00 00 00 7e 4e ed 04 16 98 5f 68 00 0d 00 85</span><br></pre></td></tr></table></figure>
+
+<p>输入：”1751095318144L” -&gt; “1751105319144L”。</p>
+<p>v49的值未变，0xd00 -&gt; 0xd00。</p>
+<p>v98的4-7和16-17字节发生了变化，最后1个字节之所以变了，是因为前23字节存在变化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 |59 08 e7 3a| 01 00 00 00 7e 4e ed 04 |16 98| 5f 68 00 0d 00 85</span><br><span class="line">↓↓↓</span><br><span class="line">41 51 27 00 |b6 ca a0 0e| 01 00 00 00 7e 4e ed 04 |27 bf| 5f 68 00 0d 00 a1</span><br></pre></td></tr></table></figure>
+
+<p>如果输入改成”1111111111111L”。</p>
+<p>v49的值未变，0xd00 -&gt; 0xd00。</p>
+<p>v98的4-7和16-19字节发生了变化，最后1个字节之所以变了，是因为前23字节存在变化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 |59 08 e7 3a| 01 00 00 00 7e 4e ed 04 |16 98 5f 68| 00 0d 00 85</span><br><span class="line"></span><br><span class="line">41 51 27 00 |7c 75 c0 79| 01 00 00 00 7e 4e ed 04 |c7 35 3a 42| 00 0d 00 da</span><br></pre></td></tr></table></figure>
+
+<h3 id="urlObj和时间戳"><a href="#urlObj和时间戳" class="headerlink" title="urlObj和时间戳"></a>urlObj和时间戳</h3><p>输入：”xianyu” -&gt; “x14nuy”。</p>
+<p>输入：”1751095318144L” -&gt; “1111111111111L”。</p>
+<p>v49的值未变，0xd00 -&gt; 0xd00。</p>
+<p>v98的4-7、12-15、16-19字节发生了变化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">41 51 27 00 |59 08 e7 3a| 01 00 00 00 |7e 4e ed 04| |16 98 5f 68| 00 0d 00 85</span><br><span class="line">↓↓↓</span><br><span class="line">41 51 27 00 |7c 75 c0 79| 01 00 00 00 |7f 7c 00 53| |c7 35 3a 42| 00 0d 00 49</span><br></pre></td></tr></table></figure>
+
+<h2 id="16-19字节"><a href="#16-19字节" class="headerlink" title="16-19字节"></a>16-19字节</h2><p>注意到，参与计算的时间戳是以s为单位。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630105048439.png" alt="image-20250630105048439"></p>
+<p>1751095318144L是微秒，换算成秒的话，值为1751095318L，即0x68 5f 98 16，对应于v98的第16-19字节。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630105301686.png" alt="image-20250630105301686" style="zoom: 67%;" />
+
+<h2 id="20-23字节"><a href="#20-23字节" class="headerlink" title="20-23字节"></a>20-23字节</h2><p>前面分析了，v49的值恒定为0xd00，不管输入的urlObjc和时间戳如何变化，都为这个值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v49 = ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">53</span>) &amp; <span class="number">0x10</span> | ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">54</span>) &amp; <span class="number">0x20</span> | ((<span class="type">unsigned</span> __int64)qword_70910 &gt;&gt; <span class="number">44</span>) &amp; <span class="number">0x40</span> | v46 | <span class="number">0xD00</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>((unsigned __int64)qword_70910 &gt;&gt; 53) &amp; 0x10</code>实际取了qword_70910第57位，作为v49的第4位（从0开始）。</p>
+<p><code>((unsigned __int64)qword_70910 &gt;&gt; 54) &amp; 0x20</code>实际取了qword_70910第59位，作为v49的第5位。</p>
+<p><code>((unsigned __int64)qword_70910 &gt;&gt; 44) &amp; 0x40</code>实际取了qword_70910第50位，作为v49的第6位。</p>
+<p>hook了一下，查看qword_70910和v46的值。</p>
+<p>qword_70910 &#x3D; x8 &#x3D; 0xc001000000000000，所以20-22字节固定为0x000D00。</p>
+<p>而最后8位（第23字节）为前面数的总和（超过255取负）。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630115638274.png" alt="image-20250630115638274"></p>
+<p>我怀疑这里的dword_70910是混淆，干扰计算用的。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630115957984.png" alt="image-20250630115957984" style="zoom:80%;" />
+
+<h2 id="12-15字节"><a href="#12-15字节" class="headerlink" title="12-15字节"></a>12-15字节</h2><p>修改urlObj，可以使得12-15字节发生变化。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630143629732.png" alt="image-20250630143629732"></p>
+<p>在函数sub_120D8处进行hook，</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144152920.png" alt="image-20250630144152920"></p>
+<p>x0应该是我们传入的数据，但不知道被做了什么处理。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144807369.png" alt="image-20250630144807369" style="zoom:80%;" />
+
+<p>x2指向的内容也不是明文。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630144825417.png" alt="image-20250630144825417" style="zoom:80%;" />
+
+<h3 id="CRC32"><a href="#CRC32" class="headerlink" title="CRC32"></a>CRC32</h3><p>经过搜索，x2指向的内容是crc32的魔数，<code>B71DC104</code>是标准crc32算法的查找表中预计算好的一个魔数，说明函数sub_120d8跟crc32算法相关。——并且是标准的crc32算法。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630152039424.png" alt="image-20250630152039424"></p>
+<h3 id="AES"><a href="#AES" class="headerlink" title="AES"></a>AES</h3><p>那么，x0的48字节是什么呢？往地址0x124ff000下写断点。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154309863.png" alt="image-20250630154309863"></p>
+<p>再hook，打印源地址。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154344863.png" alt="image-20250630154344863"></p>
+<p>再下写断点。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630154454278.png" alt="image-20250630154454278" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630164254200.png" alt="image-20250630164254200" style="zoom:80%;" />
+
+<p>存在花指令，导致地址0x1E7FC不在定义的函数内。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630182324242.png" alt="image-20250630182324242" style="zoom:80%;" />
+
+<p>IDA识别后，把0x1E7FC也算入函数sub_1E32C的范围内了。</p>
+<p>追踪src。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630165349886.png" alt="image-20250630165349886" style="zoom:80%;" />
+
+<p>hook函数sub_1E07C。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630165825546.png" alt="image-20250630165825546"></p>
+<p>等函数sub_1E07C执行完，再打印x3、x4的内容。</p>
+<p>sub_1E07C执行完后，出现了目标48字节。</p>
+<p>大概率是传入的第0、1个参数，它们与这48字节的生成相关。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630172928250.png" alt="image-20250630172928250" style="zoom:80%;" />
+
+<p>看看第0、1个参数，x1的内容有点像加密后的字符串。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630201746906.png" alt="image-20250630201746906" style="zoom:80%;" />
+
+<p>进入函数sub_1E07C，关注函数sub_26024。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630192948412.png" alt="image-20250630192948412" style="zoom:80%;" />
+
+<p>根据hook的结果，sub_26024只执行了1次。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194424809.png" alt="image-20250630194424809"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194443002.png" alt="image-20250630194443002" style="zoom:80%;" />
+
+<p>a4指向v18</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194505551.png" alt="image-20250630194505551" style="zoom:80%;" />
+
+<p>v17指向一块堆内存，v18通过赋值，也指向这块内存。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630194532102.png" alt="image-20250630194532102" style="zoom:80%;" />
+
+<p>其中，v24是从0开始取，每次自增1，换算过来，v25每次移动16字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630195629327.png" alt="image-20250630195629327"></p>
+<p>根据分析，锁定了sub_25980。（sub_251F4没执行，它代表着AES解密，相反，sub_25980代表着加密；函数sub_2640C用来设置执行加密还是解密）</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630195951640.png" alt="image-20250630195951640" style="zoom:80%;" />
+
+<p>下面是hook函数sub_25980所得到的参数。</p>
+<p>x1指向待加密的数据，这里的数据大小是0x30，本来是0x20，多了0x10的填充。</p>
+<p>x2指向加密结束的堆内存，起始地址是0x124d3330。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630202439641.png" alt="image-20250630202439641"></p>
+<p>执行完3次sub_25980后，v25指向的区域是这样的，这是我们目标的48个字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630202728004.png" alt="image-20250630202728004"></p>
+<p>用了什么加密呢？大概率是白盒AES，因为通过插件FindCrypt，找到了AES。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630224657562.png" alt="image-20250630224657562"></p>
+<p>回到函数sub_26024，将输入改成2个一样的内容。——判断CBC还是EBC。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">debugger.addBreakPoint(<span class="keyword">module</span>.base + <span class="number">0x1E224</span>, <span class="keyword">new</span> <span class="title class_">BreakPointCallback</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">onHit</span><span class="params">(Emulator&lt;?&gt; emulator, <span class="type">long</span> address)</span> &#123;</span><br><span class="line">        <span class="comment">// 2个16字节</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">hexString</span> <span class="operator">=</span> <span class="string">&quot;xianyuxianyuismexianyuxianyuisme&quot;</span>; <span class="comment">// 十六进制字符串</span></span><br><span class="line">        <span class="type">byte</span>[] bytes = hexString.getBytes();</span><br><span class="line">        <span class="type">MemoryBlock</span> <span class="variable">newInput</span> <span class="operator">=</span> emulator.getMemory().malloc(hexString.length(), <span class="literal">true</span>);</span><br><span class="line">        newInput.getPointer().write(bytes);</span><br><span class="line">        <span class="comment">// 将x1指向我们的待加密字符串</span></span><br><span class="line">        emulator.getBackend().reg_write(Arm64Const.UC_ARM64_REG_X1, newInput.getPointer().peer);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>函数执行前，x1已经指向xianyuxianyuisme的内容。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630225923022.png" alt="image-20250630225923022"></p>
+<p>执行后，发现结果一模一样，说明采用EBC模式。（无IV）</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630230021753.png" alt="image-20250630230021753" style="zoom:80%;" />
+
+<p>之前hook函数sub_25980时，填充值是0x10，符合PKCS#7的填充方式。</p>
+<p>在下面else的代码块内，下了1个断点，发现每当执行1次函数sub_25980，这个代码块会执行36次。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630230744884.png" alt="image-20250630230744884"></p>
+<p>为什么是36次呢？标准的AES-128有10轮运算，前9轮完全一样，每1轮需要对每列进行列变换，而共有4列，因此前9轮共有36轮列变化，刚好对应else内的代码块执行了36次。</p>
+<p>为了更方便分析函数sub_259B8，用d810去除一下控制流平坦化。</p>
+<p>过于清晰了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630233053889.png" alt="image-20250630233053889"></p>
+<p>为了得到密钥，需要使用DFA攻击，在第8轮列混淆之后，第9轮列混淆之前，改变1个字节。</p>
+<p>状态矩阵在a1。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250630233850293.png" alt="image-20250630233850293"></p>
+<p>而sub_24f78是行位移操作，第9次行位移执行时，正是差分攻击的好时机。</p>
+<p>编写脚本，进行差分攻击。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701013043532.png" alt="image-20250701013043532" style="zoom:80%;" />
+
+<p>获得第10轮密钥。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012800757.png" alt="image-20250701012800757"></p>
+<p>得到初始密钥。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012834080.png" alt="image-20250701012834080"></p>
+<p>试验一下，操作没问题，和之前的hook的结果一样。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701012902860.png" alt="image-20250701012902860"></p>
+<h3 id="HMAC-SHA256"><a href="#HMAC-SHA256" class="headerlink" title="HMAC-SHA256"></a>HMAC-SHA256</h3><p>进入AES加密之前，“xianyu”作为输入，会生成下面这32字节。</p>
+<p>现在追踪这32字节哪里来的。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092041613.png" alt="image-20250701092041613" style="zoom:80%;" />
+
+<p>早在函数sub_26024的时候，x1就指向了这32字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092425536.png" alt="image-20250701092425536"></p>
+<p>往回溯源，又可以找到，a2源于函数</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701092643110.png" alt="image-20250701092643110"></p>
+<p>hook函数sub_1DEC0，会发现encrypt_data还不是目标32字节。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701094117337.png" alt="image-20250701094117337" style="zoom:80%;" />
+
+<p>而a4里面，存放着的是明文xianyu。</p>
+<p>点入函数sub_1DEC0进行分析，在函数217D8找到了SHA256的字眼。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701094449969.png" alt="image-20250701094449969"></p>
+<p>交给大模型进行分析，分析这个是一个HMAC-SHA256函数，a5、a6是opad、ipad也确认了这一点，下图异或的密钥反了，但结果一致也说明是opad&#x2F;ipad。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701095442973.png" alt="image-20250701095442973"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701095509469.png" alt="image-20250701095509469"></p>
+<p>用到了HMAC-SHA256，密钥如下，但不知道有没有魔改。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104955510.png" alt="image-20250701104955510"></p>
+<p>经过判断是标准的HMAC-SHA256。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701101620373.png" alt="image-20250701101620373"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>做个小总结，输入“xianyu”经过HMAC-SHA256，变成32字节，又经过AES变成48字节（填充也有16字节），最后经过CRC32变成4字节。</p>
+<h2 id="4-7字节"><a href="#4-7字节" class="headerlink" title="4-7字节"></a>4-7字节</h2><p>第4-7字节和时间戳有关，而赋值的地方在这里。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701103945379.png" alt="image-20250701103945379"></p>
+<p>交叉引用，大概率是在JNI_OnLoad里执行写的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104322347.png" alt="image-20250701104322347"></p>
+<p>在JNI_OnLoad可以看到，随机种子是time(0)，被固定了，所以随机数也被固定了，至此分析结束。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250701104851928.png" alt="image-20250701104851928"></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%85%A2%E8%84%9A/" rel="tag"># 慢脚</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/23/%E6%9F%90%E6%97%85%E6%B8%B8app%E5%88%86%E6%9E%90%EF%BC%882%EF%BC%89/" rel="prev" title="某旅游app分析（2）">
+                  <i class="fa fa-angle-left"></i> 某旅游app分析（2）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">X14Nuy</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">446k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">13:31</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
