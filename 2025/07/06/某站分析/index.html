@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="查壳 在jadx中，基本什么都看得到，应该没有加整体壳。   抓包（&#x2F;x&#x2F;resource&#x2F;fingerprint）url抓的包，访问链接如下。——指纹接口。 1https:&#x2F;&#x2F;app.bilibili.com&#x2F;x&#x2F;resource&#x2F;fingerprint?appkey&#x3D;1d8b6e7d45233436&amp;build&#x3D;8480300&amp;c_locale&#x3D;z">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某站分析">
+<meta property="og:url" content="http://example.com/2025/07/06/%E6%9F%90%E7%AB%99%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="查壳 在jadx中，基本什么都看得到，应该没有加整体壳。   抓包（&#x2F;x&#x2F;resource&#x2F;fingerprint）url抓的包，访问链接如下。——指纹接口。 1https:&#x2F;&#x2F;app.bilibili.com&#x2F;x&#x2F;resource&#x2F;fingerprint?appkey&#x3D;1d8b6e7d45233436&amp;build&#x3D;8480300&amp;c_locale&#x3D;z">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702142910863.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702144423594.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152113602.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152435767.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152135444.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152831312.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122050601.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702160544721.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702162534783.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702163434803.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702165711046.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702172119873.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702174112995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702174940303.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702172423703.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702183707225.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702175203684.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702175420469.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702180420898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702180520275.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702181915154.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702224745879.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702225223476.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702230000335.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142225026.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142607218.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142655119.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150044293.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150219723.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150614129.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703153739699.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703153234782.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704142231384.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704173552945.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704171007419.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704173755773.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162000190.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162053958.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162138693.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162159918.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162259284.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162341372.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162444492.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163516022.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163619468.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163640002.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163823887.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163858895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163953270.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164238315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164347535.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164454544.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164517923.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165004609.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165036976.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165048708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165114935.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165122875.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165238685.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165328400.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170716282.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170618809.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170947476.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171019147.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171107943.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171428333.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171648413.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705173702892.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705174511495.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175253222.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175440025.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705180003034.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175903494.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175918943.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175930811.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175941542.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705193709147.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705194458500.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705222536516.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705222626793.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223716486.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223735653.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223804073.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122230382.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122619513.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122719041.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130307666.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130359335.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130448309.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130803899.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131050898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131148767.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131238466.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141006523.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141120362.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141143607.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141224013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143006180.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143037404.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143923544.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144110172.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144505630.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144718229.png">
+<meta property="article:published_time" content="2025-07-06T08:16:23.000Z">
+<meta property="article:modified_time" content="2025-07-06T08:22:27.830Z">
+<meta property="article:author" content="X14Nuy">
+<meta property="article:tag" content="抓包 字段分析 protobuf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702142910863.png">
+
+
+<link rel="canonical" href="http://example.com/2025/07/06/%E6%9F%90%E7%AB%99%E5%88%86%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/07/06/%E6%9F%90%E7%AB%99%E5%88%86%E6%9E%90/","path":"2025/07/06/某站分析/","title":"某站分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>某站分析 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9F%A5%E5%A3%B3"><span class="nav-number">1.</span> <span class="nav-text">查壳</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8A%93%E5%8C%85%EF%BC%88-x-resource-fingerprint%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">抓包（&#x2F;x&#x2F;resource&#x2F;fingerprint）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#url"><span class="nav-number">2.1.</span> <span class="nav-text">url</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%A4%B4"><span class="nav-number">2.3.</span> <span class="nav-text">请求头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E4%BD%93"><span class="nav-number">2.4.</span> <span class="nav-text">请求体</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#sign"><span class="nav-number">3.1.</span> <span class="nav-text">sign</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D"><span class="nav-number">3.1.1.</span> <span class="nav-text">定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%AF%86%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-number">3.1.2.</span> <span class="nav-text">解密字符串</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90-1"><span class="nav-number">3.1.3.</span> <span class="nav-text">分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#buvid"><span class="nav-number">3.2.</span> <span class="nav-text">buvid</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D-%E5%88%86%E6%9E%90"><span class="nav-number">3.2.1.</span> <span class="nav-text">定位 &amp;&amp; 分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fp-local"><span class="nav-number">3.3.</span> <span class="nav-text">fp_local</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D-%E5%88%86%E6%9E%90-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">定位 &amp;&amp; 分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E4%BD%93%E5%88%86%E6%9E%90%EF%BC%88protobuf%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">请求体分析（protobuf）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D-%E5%88%86%E6%9E%90-2"><span class="nav-number">3.4.1.</span> <span class="nav-text">定位 &amp;&amp; 分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%AA%E9%80%A0%E6%8C%87%E7%BA%B9"><span class="nav-number">3.4.2.</span> <span class="nav-text">伪造指纹</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">学习点</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">X14Nuy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/07/06/%E6%9F%90%E7%AB%99%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="某站分析 | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          某站分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-07-06 16:16:23 / 修改时间：16:22:27" itemprop="dateCreated datePublished" datetime="2025-07-06T16:16:23+08:00">2025-07-06</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>33k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1:01</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="查壳"><a href="#查壳" class="headerlink" title="查壳"></a>查壳</h1><p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702142910863.png" alt="image-20250702142910863"></p>
+<p>在jadx中，基本什么都看得到，应该没有加整体壳。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702144423594.png" alt="image-20250702144423594" style="zoom:80%;" />
+
+<h1 id="抓包（-x-resource-fingerprint）"><a href="#抓包（-x-resource-fingerprint）" class="headerlink" title="抓包（&#x2F;x&#x2F;resource&#x2F;fingerprint）"></a>抓包（&#x2F;x&#x2F;resource&#x2F;fingerprint）</h1><h2 id="url"><a href="#url" class="headerlink" title="url"></a>url</h2><p>抓的包，访问链接如下。——指纹接口。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://app.bilibili.com/x/resource/fingerprint?appkey=1d8b6e7d45233436&amp;build=8480300&amp;c_locale=zh_CN&amp;channel=vivo&amp;disable_rcmd=0&amp;mobi_app=android&amp;platform=android&amp;s_locale=zh_CN&amp;statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%228.48.0%22%2C%22abtest%22%3A%22%22%7D&amp;ts=1751439861&amp;sign=9168aa232e8a21024f1276dabbd6682a</span><br></pre></td></tr></table></figure>
+
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>参数如下。</p>
+<p>appkey一般是一个app固定的东西；</p>
+<p>build是版本号；</p>
+<p>statistics记录了一些基本信息。</p>
+<p>sign是一个签名。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152113602.png" alt="image-20250702152113602" style="zoom:80%;" />
+
+<p>对一些参数进行删减，发现只要留下platform和sign便能获得正确的响应。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152435767.png" alt="image-20250702152435767"></p>
+<h2 id="请求头"><a href="#请求头" class="headerlink" title="请求头"></a>请求头</h2><p>请求头如下。</p>
+<p>fp_local是本地指纹；</p>
+<p>buvid似乎也是指纹。</p>
+<p>两者有什么区别呢：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一个形象的比喻，假设进入一个高级俱乐部需要验证身份：</span><br><span class="line">    buvid 就像是你的会员卡。这张卡一旦办好，上面的会员号是固定不变的。你每次来，出示这张卡，俱乐部就知道你是谁，你过往的消费记录是怎样的。</span><br><span class="line">    fp_local 就像是门口的人脸识别+安检。你每次进门时，系统会实时扫描你的脸、你的穿着打扮、你有没有带危险品（即你当前的设备环境）。这个扫描结果就是你的fp_local。</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152135444.png" alt="image-20250702152135444" style="zoom:80%;" />
+
+<p>请求头全撤了，也能得到正确响应。（这样可能会触发风控，毕竟请求头太奇怪了）</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702152831312.png" alt="image-20250702152831312"></p>
+<h2 id="请求体"><a href="#请求体" class="headerlink" title="请求体"></a>请求体</h2><p>请求体包含2个部分，key和content，稍微动1个字节都会引发错误。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;key&quot;: &quot;B5592D6C3EC9EDB4A217370C2502098C71296E7A91A922F90F01F1AD1C4FFD9D7A140879D503DB12E153E4AB41051B413E95C7C5F6AC4681EA65FF7EA8055F0B336EA750E31980F70DAD33448607D3A8CAFA3D149D106758296B8EA448498C967452D58EF5E01694CBE128686C6ECCC98593895E01981CC33AE043288BDFE520&quot;,</span><br><span class="line">  &quot;content&quot;: &quot;7F85A3076EFCDB1CE8B2951DD3976F7994BFF8A62D51EC62D8F6F5773E3AE4DAB9DCE2F6BE8BC149C6C7F26B635430E23B7E005AC9A241A530BD0D2A73A9BDA6CF126CCBB2CB1EEE3805A2E96D617E9B48D3569E697DD28B377A4459B24FE7CA7BDEB77B433C91C968937ABB2F6E561AEB0AD07335CF7F40B4A8C3B48B65B59DBFB57358DA9D0541064C852A6FC8F455062276BAA8496DA656A9DF365D444EBB3DC3711AC44D248F05DE6DAE34101AF8FA3E179E87F86F3AA001DD28CBF21F852B39E8D7C98B7ECBBC85AFB3C52C8C7ED9E01279F7D650E39BBBD821DC556C40F83669785AA90C024B73EADFD8F28D2B9C1C2608B22B3684AD9116E4BC4163DB60C058F23BF3F1E7D56A481C6F4BB9373EE771D61608295ADB1B3F205C0DD2E8EC24A693C2B9C555C35E537F5B19D6C9F5B71CC111858E2D321ACDFB269003EA45D191FB9C56D359386F79B245C1697F145976F05E43195968A54423C041CFC7990FF7E8B632138F699F473DADA2CB8280225A96D311574B89337BFCE30DFF16A42D19324D9244E1714DDB6B36A7F46B21168F41E9CD3FBF380EEC915A7C12EECEC3973F38343192862009A85B182AD1233AEBC1434EA2C4770A636F6DF093003B96F0A017E04DB157D5228DE72246BC5FC90D222B217794F94D5EC8CF5BDAF4C95B34F89AEABD8A7979403BBC48329B6FB23D72A54DF3882D758D7AB68E25DA76FE94A140458BAF4CC3530854BCC5A231D5D941CA579EE94E83A89F1792A4595EC405E291A55A060EE0DEE5014CC9A1CC1CF7AB9987FE3E52F88FBD1A043679D0A7DEC997789F2136253BA806C744DDB9E9A0422AAF564D8E7F58F28D086D74CE430E6FAF084982BC12339A7CE6EBE94A96555FC7CCDEBC69E3E7F481BC224617384D0F4F5D2470A2BCB5944B22DEB878EAA2C2844F8ABE7F12592664BB37ECA47509B84D77716B0BAC584B7FBB150E6820BF4D423FB618A74B2CC7719D728B9D8D39D029C5B45396736F10618CB21CAA14355FB0B42D464774AEE05F7AEEDBFFE910DEC069FA9E32617CCEDBEDA4708D9FA1D9BC96753F8017969A5EBEB1D8B933D3C50D8574DD2A84DA2AE71D48761A1AF265770A8EE49F551A10C41BD0552048438834EE2EEBCA62458DB2C2836DEFFD1ECA41B344A0C03166FCA7E4CE8BB52967B686B9DF6CD8AB879945547A7C2FE627B3302AE5CE1AA65C68668D6784124BA0713F55D4BEC45E5E5DFD5B691DC8D36ABD821C5E2E24A3EB06B0D8F14E124BA0713F55D4BEC45E5E5DFD5B691DAC207D15F7A1AF2B8A0E5A4580582A33F32CBC20343B9E708171A98B4159E62BBA6A7C8038EB3AA26812372744A1C4C2F5F5EACAC455F30E53BCF52EAA140EADFB4E5CCB01971968A245974EA19BC7F0669AB681037B4BB8F903260124AC0FB504E9C87229D636431329E8F205CFCA0D7A80E08DA78061F0EB9D1AF16DB730C1AE0E80DDB2DFB3156B18D334618CCDDE233AEBC1434EA2C4770A636F6DF09300E2F550F90EEADBE814F221EBE00164664F0A34D5FF8B32C09E5A24D40D6D45B3612B17C41FBA51ABB86251E3B1CB357A299E8879C6D8BCAD98733D71A38C2B8EEFFD1ECA41B344A0C03166FCA7E4CE8BD9DAC74C881D6B1CFC5BA3746DDB48C4F1ED8C56135C4984CBE8209E1F60449C708C783AB8959B30CBF3F77BE5AAE7FB097BF936EC59600DF4FC8DCF6FC9DB82309AB89A1644437A65F55E12FEA82784AE0E80DDB2DFB3156B18D334618CCDDE967DAC2FD4C167D08163840E5071E353350E14A04FC182249A7A3C8060EBDFB0645F65777CD5A68D3281CB8488B99F22CF6985310DE6D2BBDAF8362F58130FE561693D7C8015E047220EC786D06B26238B6EB3084D301EF70BE8082D0D3FBE15EB30475F9A7B6876B8447B9A911D7749F5F5EACAC455F30E53BCF52EAA140EAD99E5E18A77E0D7BB1E62CC846D9CC80D8B6EB3084D301EF70BE8082D0D3FBE15EB30475F9A7B6876B8447B9A911D7749F5F5EACAC455F30E53BCF52EAA140EAD99E5E18A77E0D7BB1E62CC846D9CC80DABC395E3E9307A63EBA8450C10F4AAAD967328FA7CA7638A2C066A0336736A3D13A5240B265E5581E245783309027F6372F0C59E74017138EE33D195BCAD06FAE32B80709A8CE080116413E53F5A326A5AE85FAF47F6FA5FE444EAF448D3C1B04F35288C7D045CD2D8C79F021E365359651EF28CA3616A16F9FFD4D56C3EA514218CE945CD85C054B8AD8C3ECE3C4CB4C183C48A12686422A696335A261FB96F8CCE36CFCE08EA98F0F32ECEEFB22FF23B6CA3D801D9DDEFE2DF37463FB28488EE0061406C2FC4346E5DEB30040D1712C76B625C4A680653FACD92931ED78474459AF115761AD515AB0499B8F50C06D44CE11766B8779712E014BD49ADD1D5306C3BD2CB4671C9CE2B1AB77F13F80163A3ADD2E4B89D09C03B6AFF1F428B5AEDB410689D8777D91B22A5B46C4C9005D112A1CFF7A854B4964364C5BCD5485D0D2A9C65DFB61D444D52E79B71BC74DA4416ECEAEAFEEB6F5328FD4757CD5C0C42F6D5BBE3EE085F8ED98281DC8BEB62E9DEE934628A9142DB00121DCACAB5A0365B84200CD99B9E8ED6FE2FC27702C73831A2E70EE2301EB5305FE37D30AA20757F77C9878833E7A412AA0FFDD4C5A2651926698143B617115960874EDEC9634C625EC3C20E342278C8B37F348AD6B1FD610F2835414B2C3113048D20A3D02146B9BF3B60128731ABCA77639B0DA6337314C3F3ACC92F338429B0AEE68ACC0E13B4B78572B43C0B92A24DE330684131ABDF26CEF3BC27CD978E29570E1E0690DA8F6648384F435659F89E4F0FA04A38A78C9E532B0C5307F2306A46497F37BBCA703923C03B8ECD34B958BF0804181B0776B284248B199FAD99CF1BD3773FC9DA6FDA6B0B3FEDAE5ECB0C95A66E0D79020A198887E43EF87328073071BE14575470E41E8CBA4D151F3F9B0E454431A9684EA68D7DC4A1942ED3D09A8C0006FD04B4C2A0F899B3C09B054D6A3405145A74958B3FF19FE13E48C4F679E09D490FCA261BAFDBD972BCA0056FD9B41C8F4D141678018968B450DEA5C6694FE97C93EACFFD79AFD23FB1D690ECD5A62D55645D636B6A87E3C8339390B8B52E36CF07179848B079E6CB4E39AA7E7B98F172020068B6DCD9E83E8ACE3B07099394EEB82BCC7899413C8A7B549A539D58906DA39F2E837088AFA0DD81D838216DD32178F13B901968946AE5C6190D509FF9A353AC5AD8E5AD03B7F44A705B925B43EF5866217CE62D5550C1D6107F525A965901FF90615E64155E218DFF821A2D8B51DDF2F402B5C63A8E67D125945165D9FEC3235DFCDE63C1B40D8816B7F3E517F0430EEB9C28F75EAAE9A06DB745ECC8868931B6A989620AEBACBD5B98DA2453895961F01116D824F062C0AD3AC7EDC14DA06579B8FDF57A93D49349CE9481532B5CABD8690FEDAC8BFBBCA039A1F602C49DB8D0AF0BBAFC185EEE22F78EE10C73257C050A6EDF181DDEEBAA0C37552CAAC0F8672ABF5DFE7767C70C5A44EF6D5827F820EF44B5D693D086629675A2047B6B422DE2CA91F7C16F48FCDC542DBDC64B47442519DABE3841B6136BFEEB6B32D1207FDF8752833CFDF1D407A1C16E777D6A3AD4A49F54F87408A5E69A83DBB852DB9F19A665512CA75BCA1EF9050D18BF152882409AEC92D05BFD5F35FEE6C9BF62056EC7AD830A00CC10BF8270621BC04CCE5D2018569A86E00A99C4D60020A8F3E56756F83168C01918C1AF35941DC2EAC18BE904F19650D8231CE8B30C9E2BB2BDB77A57BA980F3601D4D50C1D52997D65B99622AC53E5D5DD7258F72B1EA2DEEE40E1B3CAAD1EF087C7024E30E6266200600A39CDC7B065CDDB6D206797D5F2AA5F263A3D8B1ED0A077283607CFEF32412EFB7B6E6C59AFB4FA0BEF1D257FA2EB57AB611B4ACFCCB6DED51F207B3E328A7DDE85FED7C98058F0E5E6D8E493FB3DD2C59DB9F1F5E8621702B843DF8E52F5A00894FAA0363BFC77AB70D6B57995F39684DE8F61EA2BB96A642F4B545B17984C653106FEBC7610E0B7F451ADC97CF36A9A668D617521AF056A5C5EEF07B603054FC4D1412F54129CBE4BBCD7A8142114D8A27F35DCFDC8095A56AC245691A8B783D594EC52015261A2E95724988B5A3A3647059A289B614511CD0DB44080E39D1C0EACDD65BCCC2B68C6B8938FCDE02E2A725263F4C321938AE9BFB886D9291C06790124113BAB08659A4BC2268875396FE8F63661CB977A05652A31C91CA27D2C4072424907DAB05DB6A6E9F3518F78A8172B6C9D1611C3463A38786FCFCC2363AA37CF8D34F93A944C40D463CD4A6C6F2698E41AAF48F362D4591F9B4BBE667B8EA4A1A211DF167585E7ACE6E8B2CB35D1C43B236C70C92A8DB47DDC869603C60ADFD523B5BB08F0B765F9B91DA7D05097E7109F540C05DEC099864D773DF8E5D7D3A187826747581587B3D22D6210F47FC719F94E1E98824A210B0E7AB543EBFC745C102B36B9EA78D64CF2B379C6A63A8E0B302CEF681192AB859DD8911D25AAAA248896ED60D58E041E799D4F0E9DBD97D1D3A6B63D40F009EA23523AA7C708AB2087F5C48EB54DFECB021B11D6B8BE54F43B47ECDC4B9D4383EC9AFA1A32B3731DEDFF782092F5964D8D0437ADB689383099E66F2A0AC8BA89E5A5CBF1FCA8538680197F192760786EAF620B7F985F4729FB5AEAF2BAF379F5312EAC0D871F92FB804D1E4E1F14DB95D30A93D31A59586B74359A8A6A29065D13BB52F79C76E455478813A64B90DD8B934690F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC05402D9935318D0365C7385B8DB1BD6CA8903FC5FE4F5308282325AD9687DBCBFF90F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC058697B471918C0617C7D803FDFA858C591E248919900FA678E012FC5506487500803904EA509B6FD8C2929B0D7877714B5FB09985B271C74B23190BD05C3A456FAAA0AA148DD944A260602CA2AACA921CE5D96574541C128C2020FAC184F77BCD7FFE6BCD1D64CC81231BFCDBD7CE287B4082823E00E2444CC849241D5C39B7D3255947FC810018EE959BF8394E3FCCFB65130A34669E46EAD066732074E79747D431D002AF22CBF26A841E1C7FAB86177D21C5EE6A1AFA900D5456093D4B3FF52F763A23EA1989D19972264B3F4A062C1D7677D67F39D6B88AAE8EE0CD4287C0F38B3C8E3D1775833F9B7626FA29635F2A841A307BBE3B0F41DB1337C0DBAD90264D07B0895F15E0D6E7DBEE9DE1C4158EB801501463144F5ADA11F92E11D49F1116FA7B7B8CB23A627F386F190D188E79BEA5D1198624C95D1D57E3FA7D161B93B005CD7DAD5DF83F3511B661037E0D64047B878719F91D79ABA3AF7F648852D431D002AF22CBF26A841E1C7FAB8617C025D907EE2B4EB63ACA4A09ABFF63AAE56434A3F4B817C8A777516C0E36DAC28F27C6849012F2C9076CEB858703B65B5BC400A5A8A69ACFD306E6F03EECE46A9B1758FADB344B3D04BA2CAF3154B7817D559BB2F4804197B6D4E1D07822BEDE60A17CBFE9472AABE53C26EB59255E20BF13763A8506CABCEBB1935BAADF8D85A54668E34F90CDF76CF9CC847FE13BD2049A1160D1C4233BC169FF56CCEAEA98FB062EEB196D72C00789C1C285C2CF276A462822E7C6687A008C146EC5AAA5038691173224E333FE75EB0048E7845E10200FA230DB98527DAA52653A6268505FA47213686A10BEF7161E9E87E2081BDBD6E90FFB5A08EFFAFF503C920D1BBFB2AFF95ED457151A079FF72FFFC5B31726DACD78F6977E058A22994BCA11A0B3AD670585D20C78C2073A330ED0CB887169DCC5D8D86217F7942281B090229E95B552F79C76E455478813A64B90DD8B934690F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC0512B2F35E34DE7B5206536BBE032D1E9EF66ED808D2D49E56A1AA95516E1891D854DBD0AC494B97BA69A58764F7F23C61BEBC9B79C6CCAF16394826FE821E51FF6CC43B9CE055C233C1C99D2C1CA1087D5093182C53F3D02845FCE5EC25C181C10C4824278D939141214CF5FA7ECDA61564798BD8BFD35FD13E2B32A19BB2F956AFF95ED457151A079FF72FFFC5B31726DACD78F6977E058A22994BCA11A0B3AD670585D20C78C2073A330ED0CB8871692E78FA6D57EABFB67D8E1E686105F86B2F763A23EA1989D19972264B3F4A062C1D7677D67F39D6B88AAE8EE0CD4287C0F7576A8B19E3BF43D3A2971BF442011509B3BD74082A0FCF146D6A78EA24C8AC9BBF2DFD10FD15A52C99A6156E07477358D88A8B98601F48DA57C00D965683974820AE18C30361DABD484814725D375AB3F94B005A2C5D1B8A366D5B0BC72534BA59C741098827EC5EB9E97A2BA7D1907451D0DD902ECBACE0B517378CA336A422DFB7584EAD89DE11AB8BFA8892D4B0592DCBC99532291CCE62C371CF04097AED4A731185D1DA84B09DC80A36063D1FB2F75C3E35BFDF632E0F744FC375DE5654B994472D4672609FFC89F42C8BD54802B6C3EF67BA8151E7D1FDAA652713E47DAC46EB2E104C6DBE00B610124ABED49312F05F9DEFB3CF615B041EEBC9B17A8592A2BB61CEE4D414379A5002817539946EF55B0A3FBE6AE3335F59885F854D1116FA7B7B8CB23A627F386F190D188E79BEA5D1198624C95D1D57E3FA7D161B93B005CD7DAD5DF83F3511B661037E0DB578A5B853194C93102747A93880CDB7330EDFAB19CB0F4D236C719F16B3A1E4C88E0A5D9079F543BBBA77F1C6F46121A47F9C6C3A9FB8D2841551694B63B959E5E7A6F9B89952712A70BF4D076AD5A35F110FC835C3C50A651AB561D1A4A54C048D963DEEADFEA593E31105A3BB946B68C3FC15C250D8AF21CF2A84A21838C6193C67A66273137919E7EB826D2DA9B0F30525856B9B541B8A59086F6F010B0CEA9565E9E3D343A0C1D60FA90D86D90A8BAB40D3DFDEDED112AF81B12646346242C0B2BDFA0FC9BF7F80E00469C7F05D9796FBBBEE3EFD9A6A3B7F41949415F58F7AE7408FE60D6C1EA948F29676A338764FDC0784D7C4BD44E750327DC42B3732854E85030BE75BC38517038A6D7D5E37850C04060E9F762BA59458B529D0B5BE6E19E3B28925ABDDF0B44CE193643233F204B702C98BD59E95D5CC7958E212A3CBE0388F4CE165E85A4E7817446CCE64B3D43347E44253B3E8ECC56F5C540FC275E018BBD4F18C0C8B35D66E03E897CA1962A1BFBCC8E56B9E4E080F0BE1A02B02AB2EBE47C79D412953E521546FDBC0DA8794806032FB02D08BF362A0031E5E893F4E76E0F31B0B722C488AC6AA4704E76670F962A076569018B432957613F1918D983CBD8A9442FD18ADDBC875C63EF572F8B71CEDAA3EB89AA867D9404D2CDB3404FF7D7B5ED1687BE040A545B26075E1AD333A83817D6B637AC29089FF2F475E08BB441316B070F26E2C704545C774337BB11ABB9FBCEA5367F16D1F94DCBF9A73909FD721B80E34CEEBA05C4F2315FCC1DEF4D42BCBD11F3657FE3ABF49B60AB75656F420F4DFBBD1938D5B574C86F0EB7489560AB14360B4CB6486F80BF32A0F12D5C8A01C6932790B9CDE5C2D1DAFED1BED9D2BA68260CA7EF276B202BB6B07463B9BC1E742E21469C0AB854BEC04B9591404D3F735329D0790952EFDDEC1A39B258225A07160D07A408DC048D9FABE95ED977F5118061FD04047CB8A4E74EA59E63C26410DBA0E1A823FBC4987C78DFFF74DCB200F80A18BFE9D6A3D4F8D56ABC56E5DCB42EE66781D27B812943CE033B30047097F09E4B321C6AA5069D0D8DC4E26E6D95D8412B21942C88CB0630CEF9F085706B735DE23811DD58282667AC678CD05A1A305BAC6C3D537C49F9238596FF288B714F6C72BA8EE52969541AA2854BB10C475262B70468F34F0ED0760126FD6F393F270AE2A989BE79796FBBBEE3EFD9A6A3B7F41949415F58F7AE7408FE60D6C1EA948F29676A338764FDC0784D7C4BD44E750327DC42B3732854E85030BE75BC38517038A6D7D5EE1920129351D7A87A3568292B97634C7F76F507C7B60E2DF46A6640C042A0007FD1C0CB373F1AE9B1639B73EE1AA52D090C163B806800272CFCBB01448ECBBEF4DB053CD6ED476771DCA2EDF38DA9C7A434656F2162366371B3B339E410F5933872DA250E1BBE272DCB9E64E558DD6C350EF72C5A6D32D2757DA895688753EBC98914B0DD995B2F6E9F710848701D53162E8D7D3A9E37E81A7A8085B1C3A888CB1AF1CFD34A576586755B75E9212E0CA7DBC31904EC4F642DEDA26591F3930D530CB5DFCBE8A372502F078B4DD362DBAC42F2A6934867CC4826C01053F889ADC8B65A0A5BD8D73DED629BB31A0FB7E356BEC8457DE280DE526245B300A531FA5AC0D871F92FB804D1E4E1F14DB95D30ADEB8EA1819B7776C2CD72B34FFF9E58651C80573692057C11B36665040911EA76BEC8457DE280DE526245B300A531FA5AC0D871F92FB804D1E4E1F14DB95D30AAD8DC62CBF41603C2D14927A6ED34748DDD1C9FDE82A77596C5A53A47ECAABEFA47213686A10BEF7161E9E87E2081BDBA1D2C1A759A48D0E980FA2A94596483AD0F2223FB34863E18C8D645F65939FEAE56434A3F4B817C8A777516C0E36DAC28F27C6849012F2C9076CEB858703B65B7EC0B3C3CDCFE853BD0E30057DE415F81980E7CDA20DBC456C9CB91651BF56968CDAFDBFF0BF245545C414379631F58190F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC0512B2F35E34DE7B5206536BBE032D1E9EF66ED808D2D49E56A1AA95516E1891D854DBD0AC494B97BA69A58764F7F23C61830C92C5CE40223E5304364425E45B438C21A6ACCD12E1AFD6FBE2F1520C1E03E3FB0BEB7F296E67E5079FD5981B1022AFB31669008C97E0E6A02851A0F1EA9AD431D002AF22CBF26A841E1C7FAB8617C025D907EE2B4EB63ACA4A09ABFF63AAE56434A3F4B817C8A777516C0E36DAC28F27C6849012F2C9076CEB858703B65B0E0DC728B6E62B8D88D3339B4D21B1AE52F79C76E455478813A64B90DD8B934690F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC05F5B9A999A0DBE02758EA72ED13696CBBF286017310041599A883D4DABE274A77A4DCAD501F455B12681AEC9849DB184D289C29C29C4278476469E9CD6D8B3624EEC8C18B684CC96D8C88AB8B643064615BEFF17663ACCAF9D14B5D184DD5174488F595F6C272C3B79BF618E35F94A431D5A9F27BA257FF0A87E5ED254BC3776F52E128F15820BD2811002A0C966401FEA91407BDF5AB44130504AB47D185817C01CF0C8D6A03692C1AA0823130C645722C5C692D4E83607E89934A9B0F6EE62452F79C76E455478813A64B90DD8B934690F216C4507D52B831B446ACA320A868F7BA56AC36A4BA7B214139F87833CC0512B2F35E34DE7B5206536BBE032D1E9EF66ED808D2D49E56A1AA95516E1891D854DBD0AC494B97BA69A58764F7F23C61BEBC9B79C6CCAF16394826FE821E51FF6CC43B9CE055C233C1C99D2C1CA1087D5093182C53F3D02845FCE5EC25C181C10C4824278D939141214CF5FA7ECDA6152FCEB8E9B4F2679507AB8F6EE8C8649B011AC4357EAB4AB809E47204D530CF25DACD78F6977E058A22994BCA11A0B3AD670585D20C78C2073A330ED0CB887169FC5F8563B42D8073925BDCD46662B2B4E56434A3F4B817C8A777516C0E36DAC28F27C6849012F2C9076CEB858703B65BC42F2A6934867CC4826C01053F889ADC8B65A0A5BD8D73DED629BB31A0FB7E356BEC8457DE280DE526245B300A531FA5AC0D871F92FB804D1E4E1F14DB95D30ADF7C6268E7333C414E1392B824F7FAC8F66ED808D2D49E56A1AA95516E1891D854DBD0AC494B97BA69A58764F7F23C61830C92C5CE40223E5304364425E45B438C21A6ACCD12E1AFD6FBE2F1520C1E03E3FB0BEB7F296E67E5079FD5981B1022A8B1E0BA166D2A6BC4C6B072328FF8D284B97E0DDB4E80788AA697C39738BCFE64494B3F07CB23980E07D4FCC9420D3F152B7B018EC814374E39E35BF8DE5DA494F8D3FC222859AFDD74A2F85BE3F51A0CD09A2E1593CC720A54847078F4B9F8D4EA2E3C326E3C0CF04072BE12E8F31E7AA3E24A3EC3297965C7411F12047C63B97C6AD81218F8FEB6A9B6915DB00F4427C9BE44C90DCEEB22C78C937DD8CA8089F1ED2BBEC0EC1D1BFD38B6D19A235C7C694B533072FF10DA6EA3331ED033738087B0C0D85274D237CDF89692978ADB1A5EB84649B7429EF1208903DAE675EB3F2E7DB4B4FF8825E88B52696CF3292895DB9341B69677D13461AEA83D226C55869A332CAE9864C9B229E92A699E026C95262993FBE69FAED08C91A5690A7135C749CCD38B9195491ED06A976C483FD6955A64914DACB7185D2BB0896A7064C55AA752A2AA265147D595BE7B9748F6CDC464C679F1A4A262DCE5D69EDD327513009157CA19CABC43DA6E60C96C6B1B953E81060F3914E65611575656F8F2749CBD92D9B888F16FEE47B23CE4316E2811D5A35D01A55990BA69CBF8EF84CFC89D910007F5A865008E54112B24EAAE4D6F990FF7E8B632138F699F473DADA2CB8280225A96D311574B89337BFCE30DFF16515FF2B9A9E1AC75D9B6F91815342A7B34C6C223EF4598C95E72CBCF67B2FEE0F007C666F86B4B1CF4C603F45BEEFF6226B862E138BF6B55CF6B158AC27667BAE89DF3F79A55F503341377934F5E21F70A23207A28F73CF9533FBB68D79B63F2669EE99C2000C303C42652222C2FA5B44EE38CFD95E15D74FAA06E436D7440573E563BE3CFEC54820627A81723A9728608131F51FBCCC1644342E3D0CD6ECCED0429A869421B4EA013898819B95F25093C049A8127762F7123B898CE94D25B863E563BE3CFEC54820627A81723A97286C7F1A1AC18B6E21AFA00B26C8CA6208485F99FE3E7D7EA97C8C29AEFFB290144B3D007675DF82A1CB9A17858002F128F41C609545EDDA2F5C35AA94A0E357A2A70F2BEB5AF1F9F03C5EA20050470C68EC749ED4DDDC698261434B427A25F779B350E14A04FC182249A7A3C8060EBDFB00426904FCBBCD599C1C103DEE57EB3E2C4A771A6DE8A67164CDD0CEDD817B1768934785E1DC8B65BD041CECE58833229A1081B01B60850C082EA8E4A0DAF5E0ECD480D0B5A44499A54F068DD9FEF62C7A13DC7453679EEC3D34A92D623B79C1695837A08BB0A70AF44EB26157E245810B3B504D38D01887E7504DB48C50DE25743E370CC84795AC30462BB98D52389DEC3D886D7708C85A695C4948151F750BC3B5F329B53BCDCC6B2955FCE3D085A9BEB8A9F633D835F1683CDE65D1D7ED96DE900EFAB99920C130890A8BD1BC32AB24834AF46B416425960290B1DAE5AD342990C4CFA73024DB060D102953BE7754160DFED9F3FBFB8AD2634D947BE5A2277CFF6FBABDB7BF5625F4D118DE8831567ACCDF7E99711816A7FBBE3F64E3D7539B4A910155CC09ED3C446EFC943791E750FEBE34B70120440DA4D943A292FCCE6AAC66FF9453D8A93B27A6AA1C9BA22E8EDCBE8B7EB1D13F23BF126735484AAF78F87CBE64E42597605496F171F271D499466F0E4FA8C35A512898CA691ECAD8712161855BAA8048238C3C5F6071699892D64FDA860F3DB3B06FFA4D531A8550154C05CDAF670729893520B353997F4F21F0EBE2ACF8B6DBD4D119349F1C2B55822CFADA906DF04C7C4634F23BDE01248219D2040CD9A023E76337F3E9A7F6D80C40A7CF35D401794CB67D20DC8B4FA0476B69083C49488F84F4A3EEB4A055655ADBDDA111E057860AFD9E1783FB60598B84E7C1E476EC6162845FACDD40EB4F81F44D272D220B1D1C32955B83BA2B570DB7CD9781F24F0FC9BE8263ED8F25AC2280A32C9E98EC2815567781B354B9FC41F2317E4408F4BBD21873702B8EEE20255A377E556EE8957654F9B844B89939F198B03EE20713E0087FED15C18209B07FD867520B219D7E9FE363DE8BF0AC52F299E8879C6D8BCAD98733D71A38C2B8E513A1263E66577B119DC9FFAAE6D71DEF33E9C205139F616CEAD1B5103265AF8D21887509E4F4AAD0EC33363B0E7BEC0A13536F30BA922B5E69DBE82B26C57C0FA06EC07C3D189D1669A012DB69AADCF01B3538E97B92717A50A155AD6969ACFD1270330C8F13CB8C2101CF0D1A565BE22AC93F289EF8A9F361C74F044E7F9A069F6E36F599EE92C075127436F47BAFF6FA5D3B0202070FF8D2DD28394FA90D74CCDFBC68B9CD373AFBAF2C4222D7A47F7BF867B2CDC7AC061B1043CA97943C37A94E7B48ED6CD54393029AB13D4552E43B74082368D126191B6BC65349A5CCE3F745B985260B09EDACA9F4FF73E12EB0ED09B1C8B9ED97C89A96260108FB5DE218014E9B2BB56209DC6F81794D441C11113C302D5ACB1841A2587E5451EF6DC5A37FAF69B16D5D3106F910530B125CD04D570485800C141CA0472465E8A133399132AC5010580B9BB12ED9BD806782EE252906AF40328C78AA796A1694B024FAB3A7233D6867E8C596BB4A0F1FBF12B40DD890CF0C6F341CB7671DF45121D8A6E13342262CE2F1F4316BA5C048B5F8ED4D6886003A8D7064A20D8514F236A4BADF428FBA859FFDD73E76A375E5A14682853503ACDEB68E94B1C205D866A79683526681FF6D1716CA1F4546F79942BD4FF67F8EF442A12BBA5469D5346116720055ED4C1EA045E8197FB19A2DB29094CE2B55C82F6F0579445795A789FB0ECFBB977DF9ACB0E47C1F74DAF91B5067EF4CE5802614939937D810C499A52B09961FBD05FD9A037FE1EC198D0B3B11896BABB33EFFD1DE1A90EAC55627692ABBF51A298A525E781E21F968152A4C099699693782A99AAAF1E0EF532BA1267F77B841379317DA46003B0290662DAE14E0932A03EE4CC7C683E5C87F9E39F5D6179FFECF9C829FA4E367612C92E83AA9553175B8524031F9603605341A123352FD0C24902B576C941A52284231B6444E07466E4B1A7E9902C025A5F09B0A393EA5B4D438AAD2543EBF16A0E6259BBB8074B1CC43C8AE82F612E9F90B42682C66CA629BE45193CAA1C03BC5D7F7081C22303DFD97F175E39CD61024DAFBBDBA4F583B10F0B369E7E5F2108F158337F27ACBFD3B97445886BDE144247E126412C83E5D10DB679C5825791F5D8741516DE7A4F23FD9ACDAE467C777BFE5B92723C727AE450D171FA7767796FE2507220B556DDE1513A1263E66577B119DC9FFAAE6D71DEF35D6F5D790F8EB8D9C19B28A02CE8DAD19A5E6FC3FB1CE43CAE1EF463E5732140CA6675B54613959F3F94B4BADFCE7C6CC18404F876E19058CEF811397E3B127B94616943EE56F7D3C441B8B1118F8C1558C05C805833404B1842F874A78FD7ABCF40EB9BCBCE04F3699B9EDF76AD2AF1BC07AD6433D6E87E184F597DA6EECB1FFE259DA6E1F55A79015F277739E9383720114437DE6FEC41A7E947A2DD75ADD635029FB2A171CD19E89309E855100E1F6705214B1948DB9DC0552296FCA1C71341861323D969940606D8946A8AEC0EFDF9AB76C3267E23D6C67632B1F166997EF5133CD0CAC7FE675026AD18B8433973ACC2B9BC3C32B826FF1C4BD38CC43E04FE07014A6436EFC7C61C74D80E6A6BF9B8B7A2EC01E12A96033058EE0DC66B31BFF59C2EECEB10CF1CB1825FC5A0F77EA7DC0D5776A89784D964FF5EFE53362CDC3E3B5B98D35D19BD36E8D405CCF342B5B629559D043D226FD75CEA9CCB67841419D5FFA5B83BF998AD247F6575B66E9E955F896AF9EC883F25924916995C604C960EA1A5A00111478FE0DF5EF4EF59CFD49350F21945908EF8F6E7CCD0697EF5133CD0CAC7FE675026AD18B843394C800E525DE5CE0E129177076FDF3317FC6ADA0E175617915D442315995597F4E08D005B7465081D9E2559846F86570AADF428FBA859FFDD73E76A375E5A14682853503ACDEB68E94B1C205D866A7968E11B47C293D302BD46CE11FFF86F221F50EFBBA289DB3536202CE84D28CDE4777D0B9E358D1FE70EE8A1E0ACE9FDD52819387497C9D2E481EFA38D5BF94DF5CA028BA2CF09F373A68F982CCE730C90EDBB43B1C640894A29120832C002D080C6A930D729459493D0C90DCA8FCA05AB4FF9BA6D9DB62860033799C36C66EF82CFEDD02FCC183036E7A4A06482561103F7A7A049BE0A2FF7CBD64D9C670454E00EC1CADD682476355376E4829629CE5CFAA3DADDE2932EAA9440712C917271EBB524E1E42ECD79B3C4AD4BD42200896EBB12161855BAA8048238C3C5F607169989B9E355AB5A185958D3FB2E683036B892A6649FEB89991CDD04E674796F1694255413DC21014288390831A2A804766D0867ED42CF0F205640EBAD43213654A11577B80A3A85C3A035EA09E76BF9928AF900C33A09ADD2E29B122863651E3CC19E156F47DB9439FC26C94140C7F695C625BB6A9E6EACB868A60295AD65112AA6F3C1D0DCA16A145D2E86F60F76885532B044B4E0C44004CB3E4580EC09685D41650F1AD22B10496957D32F785528E9DAD95EDD17EBC44F8D6AA844FC042F20E392184BC74C2C961C0954DD803BC478C4C231F254B1E4475AC320AF4CA704CB7C56C384856016A9ED9802FB123FE742312B2C3F10BF6248EE16FCC3DDC2FE9D5D8ECB61196820452F596F86B102FD6B32D7633299BAA63E6D86D191BEC72EBE01A21796D1F0D05ACC88731A7CBA22ACA4B0D022C3CE3B90375A77E165C5DD8F9B26C5227CD2E2F8F230A73E1B81716322DB1946D7E308D0037C3D62CEA2AF8A44483475895B06E94FB432ED3D3116585321B8F8BECB205BF98180DC7E65B10911A6F2ED58EF4CB672D467F9A65539C3B66E59C4C1FC28B02EC7663B38E5FF372FE58ED6E24D389D200232F8AAADD040D3BB181AD5F3195254B3DF0C3D54951155114E0D8B990A65D2A08696E611C4F14ECA0DE32C2CE98E05254D60DBCEF66241B27761E6BA22E1BAB346E8B8779B4786B18A2E38C4D6ED6476045B2BADBFD4F00FEA66A0A35F738D8DDF8168BADB8B8004CC0D11759C1AA2CF6AB35D9CD4703F85E9CA8E80D45D6224B8CD8407293EC7BA2450B9A8DB75C7884D772295E0DF56669453E6B95C6B0D6499D16CA077AE924E725513DAEE088A327D23EF0ED6C7701EADE8616851F5EDEA0DD8D9F6E2E66065C3879181AFCD0ABFB6D5563BF4107EB7B8607E32EDB07D2D750C6B0C6A9830B1A6409EBECC53AF3000AA5203E562B9BB5506B9CFD7F29F8C7ECEEECE41C84189AD7863335A06E42D630D58E7BE7DCB3045859143B070AE4E2BF3C8366837964380D7F62651E7969A66C46DFABC7976F25787EBC6B0318C9A399566D2BB9119BA048AB3E35693C129AF6A90241E99AA2E8CD95B8EB308A49DDB98582AC10CE1ADC59C7E5664DA8C1920087C974615E11E793346968C73FC6286F157682E62ADEB48EDAC158A2126E50FED5A7B4D0B0E34&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122050601.png" alt="image-20250706122050601" style="zoom:80%;" />
+
+<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><h2 id="sign"><a href="#sign" class="headerlink" title="sign"></a>sign</h2><h3 id="定位"><a href="#定位" class="headerlink" title="定位"></a>定位</h3><p>常规操作，在jadx中搜索”sign”，观察能否直接定位到目标代码。</p>
+<p>根据包名，这几个出现”sign”的地方，似乎都不是为sign写入加密数据的地方。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702160544721.png" alt="image-20250702160544721"></p>
+<p>那就使用frida，hook函数java.util.Map。</p>
+<p>然鹅，遇到了frida检测。</p>
+<p>绕过了反调后，依旧没有打印内容，说明不是使用java.util.Map存储键值对的。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702162534783.png" alt="image-20250702162534783" style="zoom:80%;" />
+
+<p>还有两个办法。</p>
+<p>一是抓包，打印调用栈，对着调用栈分析sign的加密点；</p>
+<p>二是在jadx中搜索关于<code>sign</code>的其它字符串，因为之前搜索的是<code>&quot;sign&quot;</code>，如果去掉双引号，得到的结果会更多。——有可能用的是字符串拼接的方式。</p>
+<p>由于分析调用栈太麻烦，这里先尝试搜索<code>sign=</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702163434803.png" alt="image-20250702163434803"></p>
+<p>发现结果相比搜索<code>&quot;sign&quot;</code>多了许多，从上图的结果来看，大概率使用的就是字符串拼接，进一步缩小范围：<code>&amp;sign=</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702165711046.png" alt="image-20250702165711046"></p>
+<p>有两处比较像加密点。</p>
+<p>一个是：</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702172119873.png" alt="image-20250702172119873" style="zoom:80%;" />
+
+<p>hook了这个函数，结果如下。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702174112995.png" alt="image-20250702174112995"></p>
+<p>根据比对，这个sign大概率是访问&#x2F;x&#x2F;push&#x2F;token时的签名，而不是访问&#x2F;x&#x2F;resource&#x2F;fingerprint时的签名。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702174940303.png" alt="image-20250702174940303"></p>
+<p>另一个是：</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702172423703.png" alt="image-20250702172423703" style="zoom:80%;" />
+
+<p>对它进行hook。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">actionKey=appkey&amp;appkey=1d8b6e7d45233436&amp;build=8480300&amp;c_locale=zh_CN&amp;channel=vivo&amp;device=android&amp;disable_rcmd=0&amp;mobi_app=android&amp;platform=android&amp;s_locale=zh_CN&amp;statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%228.48.0%22%2C%22abtest%22%3A%22%22%7D&amp;ts=1751452489&amp;version=8.48.0&amp;sign=f7f2223690261f5c1c79da1725187a14</span><br></pre></td></tr></table></figure>
+
+<p>可以发现，大部分内容基本一致，基本可以确认，这里的this.sign就是目标sign。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702183707225.png" alt="image-20250702183707225" style="zoom:80%;" />
+
+<p>根据交叉引用，this.sign的赋值来自SignedQuery的构造函数。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702175203684.png" alt="image-20250702175203684"></p>
+<p>而构造函数在java层无任何引用，大概率是在native层创建的实例。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702175420469.png" alt="image-20250702175420469" style="zoom:80%;" />
+
+<p>根据追踪，signQuery会返回一个SignedQuery实例，</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702180420898.png"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702180520275.png" style="zoom:80%;" />
+
+<p>对应的库名是libbili.so。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702181915154.png" alt="image-20250702181915154" style="zoom:80%;" />
+
+<p>如何定位函数s在native层的动态绑定地址呢？</p>
+<p>方法1：</p>
+<p>如果要hook RegisterNatives，由于存在反调试，在处理完反调试之前，是不能hook RegisterNatives的——反调不是在第一时间就能hook绕过的；如果在处理完反调之后，再hook RegisterNatives，又会错过一些JNI函数的注册。这个hook的时机不好把握。</p>
+<p>方法2：</p>
+<p>又或者用Unidbg模拟执行libbili.so，但只是为了看注册地址就去补环境，有点杀鸡用牛刀的感觉。</p>
+<p>方法3：</p>
+<p>这里有一个点子。</p>
+<p>每一个Java函数都对应着C&#x2F;C++的一个ArtMethod结构体实例，可以遍历类的所有函数，然后拿到它们的handle句柄（ArtMethod地址），然后通过偏移，在ArtMethod的成员变量中找到绑定的Native地址，然后根据这个地址，判断位于哪个模块，函数的实际地址再减去模块基址，就可以得到文件内偏移地址了。</p>
+<p>这个方式相对于前面2种方式，优点在于：可以任意时机获得偏移地址（也就是说，可以绕过反调再获得）；而且不用大费周章补环境。</p>
+<p>实现效果如下，还不错。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[+] Java Method: com.bilibili.nativelibrary.LibBili.s(java.util.SortedMap)</span><br><span class="line">  |-- Method Handle: 0x9f149638</span><br><span class="line">  |-- Native Address: 0x797cf0a050</span><br><span class="line">  `-- Symbol Details: 0x9050 (offset: 0x9050 in libbili.so)</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702224745879.png" alt="image-20250702224745879" style="zoom:80%;" />
+
+<h3 id="解密字符串"><a href="#解密字符串" class="headerlink" title="解密字符串"></a>解密字符串</h3><p>.datadiv_decodexxxxx是ollvm对字符串加密的特征。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702225223476.png" alt="image-20250702225223476" style="zoom:80%;" />
+
+<p>在dump完并且修复后，字符串基本都解密完了，多了300多个字符串 。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250702230000335.png" alt="image-20250702230000335" style="zoom:80%;" />
+
+<h3 id="分析-1"><a href="#分析-1" class="headerlink" title="分析"></a>分析</h3><p>来到sub_9050。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142225026.png" alt="image-20250703142225026" style="zoom:80%;" />
+
+<p>进入sub_162A8，从return倒推。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142607218.png" alt="image-20250703142607218"></p>
+<p>v21和v7应该对应于str、str2。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703142655119.png" alt="image-20250703142655119" style="zoom:80%;" />
+
+<p>倒推，分析sub_18FF0。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150044293.png" alt="image-20250703150044293" style="zoom:80%;" />
+
+<p>一路往里找加密算法，最后来到sub_106C4。</p>
+<p>各种位移、异或、与、非操作，大概率是md5。</p>
+<p>注意到，第248行有一个<code>-680876936</code>，转换成十六进制，相当于<code>0xD76AA478</code>，这正是MD5的T盒中的常数之一。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150219723.png" alt="image-20250703150219723"></p>
+<p>同时，注意到存在<code>(v5 &gt;&gt; 3) &amp; 63</code>的操作，在md5中，这一般是获得字节数的操作。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703150614129.png" alt="image-20250703150614129" style="zoom:80%;" />
+
+<p>同时，在函数sub_FFAC发现了魔数赋值的地方。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703153739699.png" alt="image-20250703153739699" style="zoom:80%;" />
+
+<p>上述种种说明，这是一个md5运算，就是不知道有没有魔改。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">			 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0123456789ABCDEF</span><br><span class="line">7b4fb95310  61 63 63 65 73 73 5f 6b 65 79 3d 26 61 70 70 6b  access_key=&amp;appk</span><br><span class="line">7b4fb95320  65 79 3d 31 64 38 62 36 65 37 64 34 35 32 33 33  ey=1d8b6e7d45233</span><br><span class="line">7b4fb95330  34 33 36 26 62 72 61 6e 64 3d 4f 6e 65 50 6c 75  436&amp;brand=OnePlu</span><br><span class="line">7b4fb95340  73 26 62 75 69 6c 64 3d 38 34 38 30 33 30 30 26  s&amp;build=8480300&amp;</span><br><span class="line">7b4fb95350  63 5f 6c 6f 63 61 6c 65 3d 7a 68 5f 43 4e 26 63  c_locale=zh_CN&amp;c</span><br><span class="line">7b4fb95360  68 61 6e 6e 65 6c 3d 76 69 76 6f 26 64 69 73 61  hannel=vivo&amp;disa</span><br><span class="line">7b4fb95370  62 6c 65 5f 72 63 6d 64 3d 30 26 6d 56 65 72 73  ble_rcmd=0&amp;mVers</span><br><span class="line">7b4fb95380  69 6f 6e 3d 33 30 39 26 6d 61 6c 6c 56 65 72 73  ion=309&amp;mallVers</span><br><span class="line">7b4fb95390  69 6f 6e 3d 38 34 38 30 33 30 30 26 6d 6f 62 69  ion=8480300&amp;mobi</span><br><span class="line">7b4fb953a0  5f 61 70 70 3d 61 6e 64 72 6f 69 64 26 70 6c 61  _app=android&amp;pla</span><br><span class="line">7b4fb953b0  74 66 6f 72 6d 3d 61 6e 64 72 6f 69 64 26 73 5f  tform=android&amp;s_</span><br><span class="line">7b4fb953c0  6c 6f 63 61 6c 65 3d 7a 68 5f 43 4e 26 73 74 61  locale=zh_CN&amp;sta</span><br><span class="line">7b4fb953d0  74 69 73 74 69 63 73 3d 25 37 42 25 32 32 61 70  tistics=%7B%22ap</span><br><span class="line">7b4fb953e0  70 49 64 25 32 32 25 33 41 31 25 32 43 25 32 32  pId%22%3A1%2C%22</span><br><span class="line">7b4fb953f0  70 6c 61 74 66 6f 72 6d 25 32 32 25 33 41 33 25  platform%22%3A3%</span><br><span class="line">7b4fb95400  32 43 25 32 32 76 65 72 73 69 6f 6e 25 32 32 25  2C%22version%22%</span><br><span class="line">7b4fb95410  33 41 25 32 32 38 2e 34 38 2e 30 25 32 32 25 32  3A%228.48.0%22%2</span><br><span class="line">7b4fb95420  43 25 32 32 61 62 74 65 73 74 25 32 32 25 33 41  C%22abtest%22%3A</span><br><span class="line">7b4fb95430  25 32 32 25 32 32 25 37 44 26 74 72 69 62 65 56  %22%22%7D&amp;tribeV</span><br><span class="line">7b4fb95440  65 72 73 69 6f 6e 3d 30 26 74 73 3d 31 37 35 31  ersion=0&amp;ts=1751</span><br><span class="line">7b4fb95450  35 32 37 36 37 33                                527673</span><br><span class="line">输出：</span><br><span class="line">             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F  0123456789ABCDEF</span><br><span class="line">7991c96590  31 35 31 30 66 39 39 39 62 33 62 39 38 38 31 37  1510f999b3b98817</span><br><span class="line">7991c965a0  39 39 61 30 33 34 33 64 32 64 38 62 38 63 64 62  99a0343d2d8b8cdb</span><br></pre></td></tr></table></figure>
+
+<p>与标准的MD5结果不同，说明魔改了？（后来发现并没有）</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250703153234782.png" alt="image-20250703153234782"></p>
+<p>魔数和M盒赋值并没有魔改。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">v202 = *a1;</span><br><span class="line">  v2 = a1[<span class="number">1</span>];</span><br><span class="line">  v3 = a1[<span class="number">2</span>];</span><br><span class="line">  v4 = a1[<span class="number">3</span>];                                   <span class="comment">// 魔数，状态矩阵</span></span><br><span class="line">  v5 = <span class="number">0</span>;</span><br><span class="line">  v6 = <span class="number">0</span>;</span><br><span class="line">  v203 = v4;</span><br><span class="line">  <span class="keyword">while</span> ( v5 &lt; <span class="number">0x40</span> )                           <span class="comment">// M盒赋值</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">for</span> ( i = <span class="number">0x180DFC9C</span>; i != <span class="number">0x94D2D6E7</span>; i = <span class="number">0x94D2D6E7</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      *(&amp;v207 + v6) = (*(<span class="type">unsigned</span> __int8 *)(a2 + v5 + <span class="number">3</span>) &lt;&lt; <span class="number">24</span>) | (*(<span class="type">unsigned</span> __int8 *)(a2 + v5 + <span class="number">1</span>) &lt;&lt; <span class="number">8</span>) ^ <span class="number">0xF91793FF</span> ^ ~*(<span class="type">unsigned</span> __int8 *)(a2 + v5) &amp; <span class="number">0xF91793FF</span> | (*(<span class="type">unsigned</span> __int8 *)(a2 + v5 + <span class="number">2</span>) &lt;&lt; <span class="number">16</span>);</span><br><span class="line">      v205 = v6 + <span class="number">1</span>;</span><br><span class="line">      v206 = v5 + <span class="number">4</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    v6 = v205;</span><br><span class="line">    v5 = v206;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据分析，在1-64轮中：第11轮的|变成了^；</p>
+<p>第16轮的|变成了^；</p>
+<p>第19轮的|变成了^；</p>
+<p>第25轮不是魔改，因为位移后，使用<code>^</code>或者<code>|</code>，效果都一样，图中是我弄错了。</p>
+<p>第31轮的|变成了^；</p>
+<p>至于11、16、19、31轮，经过试验，发现<code>^</code>和<code>|</code>的效果是一样的，也就是说，编译器和混淆的结果，并不是魔改。</p>
+<p>所以，sub_1046C是标准的MD5 transform，基本可以判定MD5是标准的。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704142231384.png"></p>
+<p>分析了函数sub_18ff0后，发现是加了IV，所以导致结果不同。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704173552945.png" alt="image-20250704173552945" style="zoom: 67%;" />
+
+<p>IV如下。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704171007419.png" alt="image-20250704171007419" style="zoom:80%;" />
+
+<p>验证，这回对上了。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250704173755773.png" alt="image-20250704173755773" style="zoom:80%;" />
+
+<h2 id="buvid"><a href="#buvid" class="headerlink" title="buvid"></a>buvid</h2><h3 id="定位-分析"><a href="#定位-分析" class="headerlink" title="定位 &amp;&amp; 分析"></a>定位 &amp;&amp; 分析</h3><p>先定位到getBuvid。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162000190.png" alt="image-20250705162000190" style="zoom:80%;" />
+
+<p><code>this.f136924d.m467330e()</code>会得到<code>buvid_remote</code>。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162053958.png" alt="image-20250705162053958" style="zoom:80%;" />
+
+<p>如果没有<code>buvid_remote</code>，就调用<code>this.f136923c.m467322e()</code>。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162138693.png" alt="image-20250705162138693" style="zoom:80%;" />
+
+<p><code>this.f403543a.get_buvid()</code>会获得存储的<code>buvid</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162159918.png" alt="image-20250705162159918"></p>
+<p>如果没存储，再调用<code>m467316f()</code>，获得<code>buvid_compat</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162259284.png" alt="image-20250705162259284"></p>
+<p>如果没存储，再调用<code>m467317g()</code>，获得<code>buvid_local</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162341372.png" alt="image-20250705162341372"></p>
+<p>如果上述哪个<code>buvid</code>是存储了的，会将它存放在<code>buvid</code>字段里。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705162444492.png" alt="image-20250705162444492" style="zoom:80%;" />
+
+<p><code>buvid_remote</code>是服务器发的官方buvid；<code>buvid_compat</code>是兼容旧版的buvid；<code>buvid_local</code>是设备本身生成的临时buvid；而<code>buvid</code>是当前有效的buvid。</p>
+<p>这里主要去分析<code>buvid_local</code>是如何生成的。</p>
+<p>追踪下面这个函数。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163516022.png" alt="image-20250705163516022" style="zoom: 80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163619468.png" alt="image-20250705163619468" style="zoom:80%;" />
+
+<p>存在3个引用。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163640002.png" alt="image-20250705163640002"></p>
+<p>这里追踪第1个，如果找不到加密点，再追踪第2个。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163823887.png" alt="image-20250705163823887" style="zoom:80%;" />
+
+<p>查看引用。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163858895.png" alt="image-20250705163858895" style="zoom:80%;" />
+
+<p>其中，<code>String strM467289e = this.f403533a instanceof AbstractC140824n.c ? this.f403534b.m467289e() : &quot;&quot;;</code>这一行代码是在获得存储的<code>buvid2</code>，我们的目标是计算获得buvid，所以这里继续追踪<code>strM467289e = this.f403537e.mo367721a();</code>。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705163953270.png" alt="image-20250705163953270" style="zoom:80%;" />
+
+<p><code>this.f403537e</code>是一个接口实例，它的赋值来自于这。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164238315.png" alt="image-20250705164238315"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164347535.png" alt="image-20250705164347535"></p>
+<p>而<code>InterfaceC107263b.f281975a.m367723a</code>会返回一个类<code>C109665c</code>的实例。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164454544.png" alt="image-20250705164454544" style="zoom:80%;" />
+
+<p>这个实例覆写了函数a、b，并且调用了interfaceC107265d接口对象中的函数。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705164517923.png" alt="image-20250705164517923" style="zoom:80%;" />
+
+<p><code>interfaceC107265d</code>接口是如何实现的呢？追踪函数<code>C140819i</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165004609.png" alt="image-20250705165004609"></p>
+<p>再查看<code>this.f403544b</code>的赋值。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165036976.png" alt="image-20250705165036976"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165048708.png" alt="image-20250705165048708"></p>
+<p>查看<code>C140822l</code>的引用。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165114935.png" alt="image-20250705165114935"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165122875.png" alt="image-20250705165122875"></p>
+<p>实现<code>interfaceC107265d</code>接口的对象是<code>new C134862b(null, 1, null)</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165238685.png" alt="image-20250705165238685"></p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705165328400.png" alt="image-20250705165328400"></p>
+<p>接下来读代码，分析函数<code>mo367721a()</code>。</p>
+<p>获得实现接口实例的函数a。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">InterfaceC107262a</span> <span class="variable">interfaceC107262aMo367726a</span> <span class="operator">=</span> <span class="built_in">this</span>._interface.mo367726a();</span><br></pre></td></tr></table></figure>
+
+<p>而函数a返回了一个接口实例对象。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170716282.png" alt="image-20250705170716282" style="zoom:80%;" />
+
+<p>只有类C109664b实现了这个接口，在new的时候，并没有对这个接口进行初始化，所以这里<code>interfaceC107262aMo367726a</code>只会得到null。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170618809.png" alt="image-20250705170618809"></p>
+<p>继续往下看，这回进行初始化了，传的接口是getLogger。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (interfaceC107262aMo367726a == <span class="literal">null</span>) &#123;</span><br><span class="line">    interfaceC107262aMo367726a = <span class="keyword">new</span> <span class="title class_">C109664b</span>(<span class="built_in">this</span>._interface.getLogger());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705170947476.png" alt="image-20250705170947476" style="zoom:80%;" />
+
+<p>而getLogger的返回值是<code>this.f378652a</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171019147.png" alt="image-20250705171019147"></p>
+<p>所以相当于调用了<code>new C109664b(null)</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171107943.png" alt="image-20250705171107943"></p>
+<p>继续往下看，获得了一个迭代器，根据当前的sdk版本，获得不同的接口列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Iterator&lt;InterfaceC107264c&gt; it = this._interface.mo367728c().iterator();</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171428333.png" alt="image-20250705171428333"></p>
+<p>我手机的版本是32，之后分析listListOf的接口列表。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705171648413.png" alt="image-20250705171648413"></p>
+<p>接着分析下面的代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Iterator&lt;InterfaceC107264c&gt; it = <span class="built_in">this</span>._interface.mo367728c().iterator();</span><br><span class="line">        <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">strMo367720a</span> <span class="operator">=</span> interfaceC107262aMo367726a.mo367720a(it.next());</span><br><span class="line">            <span class="keyword">if</span> (strMo367720a.length() != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="built_in">this</span>._interface.mo367727b().contains(strMo367720a)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> strMo367720a;</span><br><span class="line">                &#125;</span><br><span class="line">                Function1&lt;String, Unit&gt; logger = <span class="built_in">this</span>._interface.getLogger();</span><br><span class="line">                <span class="keyword">if</span> (logger != <span class="literal">null</span>) &#123;</span><br><span class="line">                    logger.invoke(Intrinsics.stringPlus(strMo367720a, <span class="string">&quot; is bad buvid&quot;</span>));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，只有下面2条关键语句——获得当前设备的buvid，如果不在黑名单中，便返回，作为buvid_local。</p>
+<p><code>String strMo367720a = interfaceC107262aMo367726a.mo367720a(it.next());</code>：获得接口函数处理后的字符串。</p>
+<p><code>this._interface.mo367727b()</code>：获得黑名单buvid。</p>
+<p>来看看是如何生成str的，由3部分组成。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705173702892.png" alt="image-20250705173702892"></p>
+<p>以其中1个接口为例。</p>
+<p>前缀是<code>XU</code>，调用<code>mo367725d</code>可以获得<code>drmID</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705174511495.png" alt="image-20250705174511495"></p>
+<p>来看看<code>String strM375856c = C109666d.m375856c(strMo367725d</code>，这是一个标准的MD5算法。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175253222.png" alt="image-20250705175253222"></p>
+<p>再看看<code>C109666d.m375857d(strM375856c)</code>，取出md5结果的第2、12、22字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175440025.png" alt="image-20250705175440025"></p>
+<p>最终结果是：”&lt;前缀&gt; + &lt;md5的2&#x2F;12&#x2F;22字节&gt; + &lt;md5结果&gt;”。</p>
+<p>最后，看看除了drmId，其它接口返回的是什么内容。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705180003034.png" alt="image-20250705180003034" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175903494.png" alt="image-20250705175903494" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175918943.png" alt="image-20250705175918943" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175930811.png" alt="image-20250705175930811" style="zoom:80%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705175941542.png" alt="image-20250705175941542" style="zoom:80%;" />
+
+<h2 id="fp-local"><a href="#fp-local" class="headerlink" title="fp_local"></a>fp_local</h2><h3 id="定位-分析-1"><a href="#定位-分析-1" class="headerlink" title="定位 &amp;&amp; 分析"></a>定位 &amp;&amp; 分析</h3><p>搜出来的结果很少，可以一个一个看。由于大部分都是getXXX，这里直接可以锁定这一行。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705193709147.png" alt="image-20250705193709147"></p>
+<p>函数m199614l中出现的字符串说明，fp_local与buvid有关。追踪<code>C144128a.m475557a</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705194458500.png" alt="image-20250705194458500"></p>
+<p>函数<code>C144128a.m475557a</code>长这个样子。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705222536516.png" alt="image-20250705222536516"></p>
+<p>再看<code>m475561e</code>，是一个md5加密，对“buvid + 设备型号 + 基带版本信息”字符串进行md5运算。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705222626793.png" alt="image-20250705222626793"></p>
+<p>而C105446f.m362260e是将hex字符串转换成字节数组。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223716486.png" alt="image-20250705223716486"></p>
+<p>函数<code>m475563g</code>返回了一个时间。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223735653.png" alt="image-20250705223735653"></p>
+<p>函数<code>m475562f</code>返回了随机的8个字节。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250705223804073.png" alt="image-20250705223804073"></p>
+<p>这就是本地指纹（fingerprint）的生成方式。</p>
+<h2 id="请求体分析（protobuf）"><a href="#请求体分析（protobuf）" class="headerlink" title="请求体分析（protobuf）"></a>请求体分析（protobuf）</h2><p>分析关于<code>/x/resource/fingerprint</code>的请求体。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122230382.png" alt="image-20250706122230382"></p>
+<h3 id="定位-分析-2"><a href="#定位-分析-2" class="headerlink" title="定位 &amp;&amp; 分析"></a>定位 &amp;&amp; 分析</h3><p>搜索<code>/x/resource/fingerprint</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122619513.png" alt="image-20250706122619513"></p>
+<p>对接口交叉引用，来到如下图所示的位置。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706122719041.png" alt="image-20250706122719041"></p>
+<p>逐步分析。</p>
+<p><code>ServiceGenerator.createService(InterfaceC9422e.class)</code>：创建一个网络请求服务的实例，ServiceGenrator是一个工厂类，用于生成实现了InterfaceC9422e接口的代理对象。</p>
+<p><code>.fingerprint(str, ...)</code>：对应一个具体的api，str是请求参数，而另一个参数是http请求体，我们要分析的就是请求体。</p>
+<p>这里的fingerprint并不涉及实现，只是告诉retrofit设置str作为查询参数到url中；设置requestBody作为POST请求的主体等。</p>
+<p><code>RequestBody.create(MediaType.parse(&quot;application/json&quot;), str2)</code>：创建了一个http请求体。</p>
+<p>据上面的分析，可以知道str是请求参数字符串，str2是处理后的请求体，因此，下一步交叉引用<code>m34466b</code>，查看str2的来源。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130307666.png" alt="image-20250706130307666" style="zoom:80%;" />
+
+<p><code>this.f29694a</code>和<code>this.f29695b</code>来自于<code>RunnableC9421d</code>，继续查询引用。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130359335.png" alt="image-20250706130359335"></p>
+<p><code>new PostBodyModel(str2, str3).toJsonString()</code>是请求体。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130448309.png" alt="image-20250706130448309"></p>
+<p>继续追踪<code>m34467c</code>的引用，请求体和入参的str、data有关，继续追踪<code>m27200a</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706130803899.png" alt="image-20250706130803899"></p>
+<p>str来自于<code>m199614l()</code>，而data来自于<code>C145722b.m479556b(Source.INIT)</code>。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131050898.png" alt="image-20250706131050898"></p>
+<p>str取值为<code>fp_local</code>，至于fp_local的计算方式，之前分析过。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131148767.png" alt="image-20250706131148767" style="zoom:80%;" />
+
+<p>直接看return的内容，尝试获得main、property、sys数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">return new Data(</span><br><span class="line">    setEmptySet.contains(&quot;main&quot;) ? MapsKt.emptyMap() : m479558d(setEmptySet, source),</span><br><span class="line">    setEmptySet.contains(&quot;property&quot;) ? MapsKt.emptyMap() : C147370e.m483853a(),</span><br><span class="line">    setEmptySet.contains(&quot;system&quot;) ? MapsKt.emptyMap() : C147367b.m483842f()</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706131238466.png" alt="image-20250706131238466"></p>
+<p>main的数据如下。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141006523.png" alt="image-20250706141006523" style="zoom:80%;" />
+
+<p>property的数据在native层获得。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141120362.png" alt="image-20250706141120362" style="zoom:80%;" />
+
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141143607.png" alt="image-20250706141143607"></p>
+<p>sys的数据如下。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706141224013.png" alt="image-20250706141224013"></p>
+<p>可以将main、property、sys都视作设备指纹。</p>
+<p>查看函数<code>C98559a.m342912b(local_fp, data)</code>做了什么。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143006180.png" alt="image-20250706143006180" style="zoom:80%;" />
+
+<p>函数m342911a长这个样子，点入任意一个c55998aNewBuilder的函数中，会发现跳转到了类com.bilibili.datacenter.hakase.protobuf.AndroidDeviceInfo$DeviceInfo。</p>
+<p>这一步是将明文指纹转换成 protobuf编码。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143037404.png" alt="image-20250706143037404"></p>
+<p>再来看函数<code>C101015b.m349014a</code>，它将protobuf编码的字节数组进行了加密。</p>
+<p><code>RSA.loadPublicKey(BiliContext.application().getAssets().open(&quot;rsa_public_key.pem&quot;));</code>：获得rsa公钥。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706143923544.png" alt="image-20250706143923544"></p>
+<p><code>C101014a.m349012e()</code>：获得随机的128位数据，作为AES密钥。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144110172.png" alt="image-20250706144110172" style="zoom:80%;" />
+
+<p><code>RSA.encryptByPublicKey(strM349012e, rSAPublicKeyLoadPublicKey)</code>：用rsa公钥对aes密钥进行加密。</p>
+<p><code>C101014a.m349009b(bArr, strM349012e)</code>：对protobuf编码的字节数组，进行aes加密。</p>
+<p><code>new Pair&lt;&gt;(strEncryptByPublicKey, strM349009b</code>：返回rsa加密的aes密钥和aes加密的protobuf数组。</p>
+<p>之后就没什么好分析的了，将key和content转换成json格式传到服务器。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144505630.png" alt="image-20250706144505630"></p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250706144718229.png" alt="image-20250706144718229" style="zoom:80%;" />
+
+<h3 id="伪造指纹"><a href="#伪造指纹" class="headerlink" title="伪造指纹"></a>伪造指纹</h3><p>先用frida hook关键点，得到protobuf数据。</p>
+<p>再使用blackboxprotobuf对protobuf数据进行解析，修改字段值，修改后转回protobuf。</p>
+<p>然后生成aes密钥，对protobuf内容加密。</p>
+<p>用assets文件夹下的rsa公钥，对生成的aes密钥进行加密。</p>
+<p>最后，将构造好的内容，替换掉正常包的请求体。</p>
+<h1 id="学习点"><a href="#学习点" class="headerlink" title="学习点"></a>学习点</h1><p>1.blackboxprotobuf的使用，定义proto文件。</p>
+<p>2.mitmproxy可以抓取并解析protobuf报文。</p>
+<p>3.reqable可以抓包、修改字段、发包、导出发包代码（python等语言）等。</p>
+<p>4.如何定位关键字段的生成代码。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%93%E5%8C%85-%E5%AD%97%E6%AE%B5%E5%88%86%E6%9E%90-protobuf/" rel="tag"># 抓包 字段分析 protobuf</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/01/ks-sig3%E5%88%86%E6%9E%90/" rel="prev" title="ks&#x2F;sig3分析">
+                  <i class="fa fa-angle-left"></i> ks/sig3分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">X14Nuy</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">479k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">14:31</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
