@@ -164,12 +164,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -186,6 +186,143 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/UnCrackable-Level2%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/UnCrackable-Level2%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">UnCrackable-Level2分析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-05-18 17:15:48 / 修改时间：17:31:15" itemprop="dateCreated datePublished" datetime="2025-05-18T17:15:48+08:00">2025-05-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="UnCrackable-Level2-apk"><a href="#UnCrackable-Level2-apk" class="headerlink" title="UnCrackable-Level2.apk"></a>UnCrackable-Level2.apk</h1><p>直接安装+打开，又是解密。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224185514939.png" alt="image-20250224185514939" style="zoom:67%;" />
+
+<p>搜索Nope，定位到this.m.a(s)。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224185646063.png" alt="image-20250224185646063" style="zoom:67%;" />
+
+<p>在类MainActivity中，有一个私有对象m，m属于类CodeCheck，调用了函数a，最后调用了native层函数bar。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224185828483.png" alt="image-20250224185828483" style="zoom:67%;" />
+
+<p>native层需要ida进行静态分析，这里将apk进行解压，取出其中的arm64架构的so库放入ida中，可以看到两个导出函数。</p>
+<p>Java_包名_类名_函数名，可以看出bar就是我们要找的函数。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224190249451.png" alt="image-20250224190249451"></p>
+<p>一眼看出，v7对应的字符串就是正确的secret。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224191818314.png" alt="image-20250224191818314" style="zoom:67%;" />
+
+<p>再看看导出的init函数，这里ida并没有给出JNIEnv和jobect，应该是反编译失误——这俩参数没用到，可能被优化了。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224192734132.png" alt="image-20250224192734132" style="zoom:80%;" />
+
+<p>在sub_918中，可以发现：fork出子进程，然后子进程通过ptrace附加到父进程，使得父进程无法其它调试器被再次附加，一个反调试技术。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250224193151757.png" alt="image-20250224193151757" style="zoom:67%;" />
+
+<p>Frida通过Interceptor模块，可以支持对Native层函数的hook。</p>
+<p>下面这个脚本，先通过Module.findBaseAddress找到so模块的基地址，然后通过导出表符号Java_sg_vantagepoint_uncrackable2_MainActivity_init，找到它的函数地址，然后根据在文件中计算的文件偏移量，计算出要hook的无符号函数的地址。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">LIB_NAME</span> = <span class="string">&#x27;libfoo.so&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">EXPORT_SYMBOL</span> = <span class="string">&#x27;Java_sg_vantagepoint_uncrackable2_MainActivity_init&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">OFFSET</span> = <span class="title function_">ptr</span>(-<span class="number">1140</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">tryHook</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="comment">// 获得模块基地址</span></span><br><span class="line">        <span class="keyword">const</span> moduleBase = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="variable constant_">LIB_NAME</span>);</span><br><span class="line">        <span class="keyword">if</span> (!moduleBase) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[!] <span class="subst">$&#123;LIB_NAME&#125;</span> 未加载，等待...`</span>);</span><br><span class="line">            <span class="built_in">setTimeout</span>(tryHook, <span class="number">1000</span>); <span class="comment">// 每秒检查一次</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[+] 模块基地址: <span class="subst">$&#123;moduleBase&#125;</span>`</span>);</span><br><span class="line">        <span class="comment">// 通过符号名获得函数实际地址</span></span><br><span class="line">        <span class="keyword">const</span> exportAddress = <span class="title class_">Module</span>.<span class="title function_">getExportByName</span>(<span class="variable constant_">LIB_NAME</span>, <span class="variable constant_">EXPORT_SYMBOL</span>);</span><br><span class="line">        <span class="keyword">if</span> (!exportAddress) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`[!] 未找到导出函数 <span class="subst">$&#123;EXPORT_SYMBOL&#125;</span>`</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[+] 导出函数地址: <span class="subst">$&#123;exportAddress&#125;</span>`</span>);</span><br><span class="line">		</span><br><span class="line">        <span class="comment">// 根据偏移计算目标地址</span></span><br><span class="line">        <span class="keyword">const</span> targetAddress = exportAddress.<span class="title function_">add</span>(<span class="variable constant_">OFFSET</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[+] 目标函数地址: <span class="subst">$&#123;targetAddress&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 打印目标地址的前5个字节</span></span><br><span class="line">        <span class="keyword">const</span> bytes = <span class="title class_">Memory</span>.<span class="title function_">readByteArray</span>(targetAddress, <span class="number">5</span>);</span><br><span class="line">        <span class="keyword">const</span> byteArray = <span class="keyword">new</span> <span class="title class_">Uint8Array</span>(bytes);</span><br><span class="line">        <span class="keyword">const</span> hexBytes = <span class="title class_">Array</span>.<span class="title function_">from</span>(byteArray).<span class="title function_">map</span>(<span class="function"><span class="params">b</span> =&gt;</span> b.<span class="title function_">toString</span>(<span class="number">16</span>).<span class="title function_">padStart</span>(<span class="number">2</span>, <span class="string">&#x27;0&#x27;</span>)).<span class="title function_">join</span>(<span class="string">&#x27; &#x27;</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[+] 前5个字节: <span class="subst">$&#123;hexBytes&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(targetAddress, &#123;</span><br><span class="line">            <span class="attr">onEnter</span>: <span class="keyword">function</span>(<span class="params">args</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`\n=== 函数调用开始 ===`</span>);</span><br><span class="line">                <span class="keyword">if</span> (<span class="title class_">Process</span>.<span class="property">arch</span> === <span class="string">&#x27;arm64&#x27;</span>) &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`X0: <span class="subst">$&#123;args[<span class="number">0</span>]&#125;</span>, X1: <span class="subst">$&#123;args[<span class="number">1</span>]&#125;</span>, X2: <span class="subst">$&#123;args[<span class="number">2</span>]&#125;</span>`</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`R0: <span class="subst">$&#123;args[<span class="number">0</span>]&#125;</span>, R1: <span class="subst">$&#123;args[<span class="number">1</span>]&#125;</span>, R2: <span class="subst">$&#123;args[<span class="number">2</span>]&#125;</span>`</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">onLeave</span>: <span class="keyword">function</span>(<span class="params">retval</span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`返回值: <span class="subst">$&#123;retval&#125;</span>`</span>);</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`=== 函数调用结束 ===\n`</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[√] Hook 安装成功`</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">setTimeout</span>(tryHook, <span class="number">1000</span>); <span class="comment">// 延迟1秒开始检查</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>然而还不够，即便hook住了这个函数，但这个函数早已经在MainActivity.onCreate阶段执行了，hook了也没用，因为已经执行过了一遍。</p>
+<p>针对执行时机的问题，有以下解决方法：</p>
+<p>1.使用spawn模式，默认的frida -U -f是“fork-and-attach”模式，可能错过早期逻辑。使用“spawn”模式可以在应用进程创建时注入Frida。</p>
+<p>如：frida -U -l script.js –no-pause -f com.example.app –spawn</p>
+<p>–spawn: 在进程创建时注入，而不是附加到已有进程。</p>
+<p>2.hook系统类System，然后对loadLibrary做手脚，如果加载的是其它库，不做处理；如果加载的是foo.so，则立马进行覆盖。<strong>这个hook的时机发生在静态初始化块执行之前</strong>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">LIB_NAME</span> = <span class="string">&#x27;libfoo.so&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">EXPORT_SYMBOL</span> = <span class="string">&#x27;Java_sg_vantagepoint_uncrackable2_MainActivity_init&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">OFFSET</span> = <span class="title function_">ptr</span>(-<span class="number">1140</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Hook System.loadLibrary</span></span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;java.lang.System&#x27;</span>).<span class="property">loadLibrary</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">libName</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[+] 加载库: <span class="subst">$&#123;libName&#125;</span>`</span>);</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">loadLibrary</span>(libName); <span class="comment">// 调用原始方法</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (libName === <span class="string">&#x27;foo&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> moduleBase = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="variable constant_">LIB_NAME</span>);</span><br><span class="line">            <span class="keyword">if</span> (!moduleBase) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> exportAddress = <span class="title class_">Module</span>.<span class="title function_">getExportByName</span>(<span class="variable constant_">LIB_NAME</span>, <span class="variable constant_">EXPORT_SYMBOL</span>);</span><br><span class="line">            <span class="keyword">const</span> targetAddress = exportAddress.<span class="title function_">add</span>(<span class="variable constant_">OFFSET</span>);</span><br><span class="line"></span><br><span class="line">            <span class="title class_">Interceptor</span>.<span class="title function_">replace</span>(targetAddress, <span class="keyword">new</span> <span class="title class_">NativeCallback</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`sub_918 被调用并覆盖`</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">42</span>;</span><br><span class="line">            &#125;, <span class="string">&#x27;int64&#x27;</span>, []));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[√] sub_918 已替换`</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>3.Hook MainActivity.onCreat。</p>
+<p>所以接下来这段脚本执行时机如下，在静态初始化块执行后（System.loadLibrary导入libfoo.so），在onCreate执行前（调用Java_sg_vantagepoint_uncrackable2_MainActivity_init之前），hook了类MainActivity，然后在它执行前，将sub_918的内容做了替换。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">LIB_NAME</span> = <span class="string">&#x27;libfoo.so&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">EXPORT_SYMBOL</span> = <span class="string">&#x27;Java_sg_vantagepoint_uncrackable2_MainActivity_init&#x27;</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">OFFSET</span> = <span class="title function_">ptr</span>(-<span class="number">1140</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">MainActivity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;sg.vantagepoint.uncrackable2.MainActivity&#x27;</span>);</span><br><span class="line">    <span class="title class_">MainActivity</span>.<span class="property">onCreate</span>.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">savedInstanceState</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;[+] MainActivity.onCreate 被调用&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 onCreate 执行前替换 sub_918</span></span><br><span class="line">        <span class="keyword">const</span> moduleBase = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="variable constant_">LIB_NAME</span>);</span><br><span class="line">        <span class="keyword">if</span> (moduleBase) &#123;</span><br><span class="line">            <span class="keyword">const</span> exportAddress = <span class="title class_">Module</span>.<span class="title function_">getExportByName</span>(<span class="variable constant_">LIB_NAME</span>, <span class="variable constant_">EXPORT_SYMBOL</span>);</span><br><span class="line">            <span class="keyword">const</span> targetAddress = exportAddress.<span class="title function_">add</span>(<span class="variable constant_">OFFSET</span>);</span><br><span class="line"></span><br><span class="line">            <span class="title class_">Interceptor</span>.<span class="title function_">replace</span>(targetAddress, <span class="keyword">new</span> <span class="title class_">NativeCallback</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`sub_918 被调用并覆盖`</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">42</span>;</span><br><span class="line">            &#125;, <span class="string">&#x27;int64&#x27;</span>, []));</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`[√] sub_918 已替换`</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用原始 onCreate</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">onCreate</span>(savedInstanceState);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>下图是安卓的初始化过程以及注入时机。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250225150528070.png" alt="image-20250225150528070" style="zoom: 67%;" />
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250225150505066.png" alt="image-20250225150505066" style="zoom:67%;" />
+
+<p>之后尝试一下hook是否执行成功，先将脚本断掉，直接通过jeb调试进程。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250225150747031.png" alt="image-20250225150747031" style="zoom:67%;" />
+
+<p>再试试通过frida进行hook后，能否attach上去调试。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250225150907624.png" alt="image-20250225150907624" style="zoom:80%;" />
+
+<p>确实是attach上去了，但是手机上显示被检测到了调试，根据字符串搜索，发现问题来自于下图。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250225151147999.png" alt="image-20250225151147999" style="zoom:67%;" />
+
+<p>有一个持续检测的进程，阿这，这么防着咱。。。</p>
+<p>只需要hook Debug.isDebuggerConnected()即可，让它一直返回false，这里就不写了。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -545,13 +682,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">479k</span>
+    <span title="站点总字数">485k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">14:31</span>
+    <span title="站点阅读时长">14:42</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
