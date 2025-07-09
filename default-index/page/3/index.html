@@ -164,12 +164,12 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -186,6 +186,144 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/18/UnCrackable-Level3%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/18/UnCrackable-Level3%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">UnCrackable-Level3分析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-05-18 17:16:25 / 修改时间：17:31:31" itemprop="dateCreated datePublished" datetime="2025-05-18T17:16:25+08:00">2025-05-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="UnCrackable-Level3-apk"><a href="#UnCrackable-Level3-apk" class="headerlink" title="UnCrackable-Level3.apk"></a>UnCrackable-Level3.apk</h1><p>照常，安装并打开，被检测到了root，通过magisk进行root权限的隐藏。</p>
+<p>之后还是输入正确的密码。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226195340118.png" alt="image-20250226195340118" style="zoom:50%;" />
+
+<p>在输入错误的Secret后，会提示Nope…That’s not it. Try again.</p>
+<p>在Jeb中搜索这个字符串，发现关键点在check_code上。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226195531902.png" alt="image-20250226195531902" style="zoom:67%;" />
+
+<p>check_code调用了native层函数bar。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226195605177.png" alt="image-20250226195605177" style="zoom:67%;" />
+
+<p>在ida中，检索函数bar，一个很明显的xor解密，密钥的长度为24。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226195656697.png" alt="image-20250226195656697"></p>
+<p>为了获得正确的secret，需要将v8和qword_15038进行xor运算，得到最终的结果。</p>
+<p>不难看出，v8的值来自于sub_10E0，这里考虑对sub_10E0进行hook，然后查看v8的值。</p>
+<p>结果hook的过程遇到了反frida的检测，可以根据报错的调用栈定位到goodbye函数。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226195957335.png" alt="image-20250226195957335" style="zoom:67%;" />
+
+<p>追溯到源头，发现在sub_30D0处，调用了goodbye()，检测的逻辑是，通过读取映射到内存的文件名，只要发现frida等字段就退出。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226200242118.png" alt="image-20250226200242118" style="zoom:80%;" />
+
+<p>为了能够正常使用frida进行hook，有以下几种hook的方式，绕过反frida。</p>
+<p>1.hook函数sub_30D0。</p>
+<p>2.hook函数strstr。</p>
+<p>Ⅰ.先讲hook sub_30D0：观察过函数sub_30D0，发现它被写在了.init_array节里，这个节里面的函数，会在库加载的时候依次被调用，因此，如果想要hook这个函数，必须在System.loadLibray执行过程中——因为执行完后，frida就hook不了了；而若是还没执行，libfoo.so还没加载，当然hook不了。</p>
+<p>查阅了相关博客，so层的.init_array节里的函数，都是被模块linker64中的call_array调用的，所以要hook函数call_array，当下的核心目标是获得call_array在模块linker64中的偏移量。（方法随意，可以直接在ida中进行查看）</p>
+<p>在hook后，流程变成：遇到加载的so是libfoo.so，在完成了内存映射后，call_array还没有执行，这个时候去修改内存中sub_30D0的内容，之后正常执行call_array。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">// 获取linker64模块的基地址</span></span><br><span class="line">    <span class="keyword">var</span> linker64_module = <span class="title class_">Module</span>.<span class="title function_">getBaseAddress</span>(<span class="string">&quot;linker64&quot;</span>);</span><br><span class="line">    <span class="comment">//使用拦截器附加linker64模块的偏移地址</span></span><br><span class="line">    <span class="comment">// 7D68B58764 - 7D68B38000 = 0x20764</span></span><br><span class="line">    <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(linker64_module.<span class="title function_">add</span>(<span class="number">0x20764</span>),&#123;</span><br><span class="line">        <span class="comment">// 进入函数，代码检查参数args[3]指向的字符串是否匹配libfoo.so</span></span><br><span class="line">        <span class="attr">onEnter</span>:<span class="keyword">function</span>(<span class="params">args</span>) &#123;</span><br><span class="line">           <span class="keyword">if</span>(args[<span class="number">0</span>].<span class="title function_">readCString</span>().<span class="title function_">match</span>(<span class="string">&quot;libfoo.so&quot;</span>)) &#123;</span><br><span class="line">                <span class="comment">// 获取libfoo.so的基地址</span></span><br><span class="line">                <span class="keyword">var</span> libfoo_module  = <span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&#x27;libfoo.so&#x27;</span>);</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;获取libfoo.so的基地址==&gt;&quot;</span>+libfoo_module)</span><br><span class="line">                <span class="title class_">Interceptor</span>.<span class="title function_">replace</span>(libfoo_module.<span class="title function_">add</span>(<span class="number">0x30D0</span>),<span class="keyword">new</span> <span class="title class_">NativeCallback</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">                    <span class="keyword">return</span>;</span><br><span class="line">                &#125;,<span class="string">&#x27;void&#x27;</span>,[]));</span><br><span class="line">           &#125;</span><br><span class="line">    &#125;,<span class="attr">onLeave</span>:<span class="keyword">function</span>(<span class="params">result</span>)&#123;&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>Ⅱ.hook strstr就比较简单，判断strstr的第1个参数里有没有frida字段，如果有，之后的返回值直接强制返回。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 反frida检测</span></span><br><span class="line"><span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(<span class="title class_">Module</span>.<span class="title function_">findExportByName</span>(<span class="string">&quot;libc.so&quot;</span>, <span class="string">&quot;strstr&quot;</span>), &#123;</span><br><span class="line"></span><br><span class="line">    <span class="attr">onEnter</span>: <span class="keyword">function</span>(<span class="params">args</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">haystack</span> = args[<span class="number">0</span>];</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">needle</span> = args[<span class="number">1</span>];</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">frida</span> = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 方法 1：使用 readCString（自动处理 NULL 结尾）</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">const</span> haystack = <span class="variable language_">this</span>.<span class="property">haystack</span>.<span class="title function_">isNull</span>() ? <span class="string">&quot;&quot;</span> : <span class="variable language_">this</span>.<span class="property">haystack</span>.<span class="title function_">readCString</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (haystack &amp;&amp; (haystack.<span class="title function_">includes</span>(<span class="string">&quot;frida&quot;</span>) || haystack.<span class="title function_">includes</span>(<span class="string">&quot;xposed&quot;</span>))) &#123;</span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">frida</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;读取字符串失败:&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    <span class="attr">onLeave</span>: <span class="keyword">function</span>(<span class="params">retval</span>) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">frida</span>) &#123;</span><br><span class="line">            retval.<span class="title function_">replace</span>(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> retval;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>ok，在解决了反frida后，继续对之前提到的sub_10E0进行解密，由于这个函数没有返回值，可以判断：这个函数会在v8所指向的地址处，修改24个字节。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">function</span> <span class="title function_">hookXor</span>(<span class="params"></span>)&#123;</span><br><span class="line">           <span class="comment">// hook xor的其中一个key</span></span><br><span class="line">       <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>((<span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libfoo.so&quot;</span>)).<span class="title function_">add</span>(<span class="string">&quot;0x010E0&quot;</span>), &#123;</span><br><span class="line">           <span class="attr">onEnter</span>: <span class="keyword">function</span>(<span class="params">args</span>)&#123;</span><br><span class="line">               <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;onEnter: hook xor key&quot;</span>);</span><br><span class="line">               <span class="variable language_">this</span>.<span class="property">key</span> = args[<span class="number">0</span>];</span><br><span class="line">           &#125;, </span><br><span class="line">       </span><br><span class="line">           <span class="attr">onLeave</span>: <span class="keyword">function</span>(<span class="params">retval</span>)&#123;</span><br><span class="line">               <span class="keyword">var</span> key_ = <span class="keyword">new</span> <span class="title class_">NativePointer</span>(<span class="variable language_">this</span>.<span class="property">key</span>);</span><br><span class="line">               <span class="keyword">var</span> arr = key_.<span class="title function_">readByteArray</span>(<span class="number">24</span>);</span><br><span class="line">               <span class="variable language_">console</span>.<span class="title function_">log</span>(arr);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line">   &#125;</span><br><span class="line"><span class="built_in">setTimeout</span>(hookXor, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这里为了避免hookXor未执行，特意延迟了1000ms再进行注入（方法比较简单）。</p>
+<p>还有其它方法，在保证加载了libfoo.so后立马进行hook，而不用等待1000ms。（同样是在加载器上做文章，不过这里hook的是System.loadLibrary）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">System</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.System&quot;</span>);</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">Runtime</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Runtime&quot;</span>);</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">SystemLoad</span>_2 = <span class="title class_">System</span>.<span class="property">loadLibrary</span>.<span class="title function_">overload</span>(<span class="string">&quot;java.lang.String&quot;</span>);</span><br><span class="line">    <span class="keyword">const</span> <span class="title class_">VMStack</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;dalvik.system.VMStack&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title class_">SystemLoad</span>_2.<span class="property">implementation</span> = <span class="keyword">function</span>(<span class="params">library</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Loading dynamic library =&gt; &quot;</span> + library);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> loaded =     <span class="title class_">Runtime</span>.<span class="title function_">getRuntime</span>().<span class="title function_">loadLibrary0</span>( <span class="title class_">VMStack</span>.<span class="title function_">getCallingClassLoader</span>(), library);</span><br><span class="line">          <span class="keyword">if</span>(library.<span class="title function_">includes</span>(<span class="string">&quot;foo&quot;</span>)) &#123;</span><br><span class="line">            <span class="comment">//function that gets the xored value </span></span><br><span class="line">            <span class="title class_">Interceptor</span>.<span class="title function_">attach</span>(<span class="title class_">Module</span>.<span class="title function_">findBaseAddress</span>(<span class="string">&quot;libfoo.so&quot;</span>).<span class="title function_">add</span>(<span class="string">&#x27;0x00000fa0&#x27;</span>),&#123;</span><br><span class="line">              <span class="attr">onEnter</span>: <span class="keyword">function</span>(<span class="params">args</span>)&#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;getting other_key value&quot;</span>);</span><br><span class="line">                <span class="variable language_">this</span>.<span class="property">other_key_address</span> = args[<span class="number">0</span>];</span><br><span class="line">              &#125;,</span><br><span class="line">              <span class="attr">onLeave</span>: <span class="keyword">function</span>(<span class="params">retval</span>)&#123;</span><br><span class="line">                <span class="keyword">var</span> other_key = <span class="keyword">new</span> <span class="title class_">NativePointer</span>(<span class="variable language_">this</span>.<span class="property">other_key_address</span>);</span><br><span class="line">                <span class="keyword">var</span> arr = other_key.<span class="title function_">readByteArray</span>(<span class="number">24</span>);</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(arr);</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span> loaded;</span><br><span class="line">        &#125; <span class="keyword">catch</span>(ex) &#123;</span><br><span class="line">          <span class="variable language_">console</span>.<span class="title function_">log</span>(ex);</span><br><span class="line">          <span class="variable language_">console</span>.<span class="title function_">log</span>(ex.<span class="property">stack</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>最后得到的结果如下，即：1d 08 11 13…</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226204101246.png" alt="image-20250226204101246" style="zoom:80%;" />
+
+<p>同时，另一个密钥key是qword_15038，追踪后，发现是通过init函数进行初始化的，这个函数是一个jni函数，根据代码，可以发现它的值由java层传递。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226204325745.png" alt="image-20250226204325745"></p>
+<p>因此，另一个key的值是pizzapizzapizzapizzapizz。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226204444346.png" alt="image-20250226204444346" style="zoom:80%;" />
+
+<p>将两者做异或运算。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">xor_bytes</span>(<span class="params">str1, bytes2</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    对两个24字节的数据进行逐字节的异或运算。</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    参数:</span></span><br><span class="line"><span class="string">    str1: 长度为24字节的字符串</span></span><br><span class="line"><span class="string">    bytes2: 长度为24字节的字节数组</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    返回:</span></span><br><span class="line"><span class="string">    result: 异或运算后的字节数组</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 确保输入长度为24字节</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(str1) != <span class="number">24</span> <span class="keyword">or</span> <span class="built_in">len</span>(bytes2) != <span class="number">24</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;输入必须是24字节长&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将字符串转换为字节数组</span></span><br><span class="line">    bytes1 = str1.encode(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 进行逐字节的异或运算</span></span><br><span class="line">    result = <span class="built_in">bytearray</span>()</span><br><span class="line">    <span class="keyword">for</span> b1, b2 <span class="keyword">in</span> <span class="built_in">zip</span>(bytes1, bytes2):</span><br><span class="line">        result.append(b1 ^ b2)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例用法</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 输入字符串和字节数组</span></span><br><span class="line">    str_input = <span class="string">&quot;pizzapizzapizzapizzapizz&quot;</span>  <span class="comment"># 24字节字符串</span></span><br><span class="line">    bytes_input = <span class="built_in">bytes</span>([<span class="number">0x1d</span>, <span class="number">0x08</span>, <span class="number">0x11</span>, <span class="number">0x13</span>, <span class="number">0x0f</span>, <span class="number">0x17</span>, <span class="number">0x49</span>, <span class="number">0x15</span>, <span class="number">0x0d</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x19</span>, <span class="number">0x5a</span>, <span class="number">0x1d</span>, <span class="number">0x13</span>, <span class="number">0x15</span>, <span class="number">0x08</span>, <span class="number">0x0e</span>, <span class="number">0x5a</span>, <span class="number">0x00</span>, <span class="number">0x17</span>, <span class="number">0x08</span>, <span class="number">0x13</span>, <span class="number">0x14</span>])  <span class="comment"># 24字节的字节数组 [0, 1, 2, ..., 23]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 执行异或运算</span></span><br><span class="line">    result = xor_bytes(str_input, bytes_input)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出结果</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;异或运算结果:&quot;</span>, result)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;十六进制表示:&quot;</span>, result.<span class="built_in">hex</span>())</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226205334111.png" alt="image-20250226205334111" style="zoom:67%;" />
+
+<p>阿这，这个解密出来的结果有点6。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250226205420426.png" alt="image-20250226205420426" style="zoom:67%;" />
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -682,13 +820,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">489k</span>
+    <span title="站点总字数">491k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">14:50</span>
+    <span title="站点阅读时长">14:52</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
