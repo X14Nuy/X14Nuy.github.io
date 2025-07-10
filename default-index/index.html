@@ -225,7 +225,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-07-10 09:02:43 / 修改时间：09:11:31" itemprop="dateCreated datePublished" datetime="2025-07-10T09:02:43+08:00">2025-07-10</time>
+      <time title="创建时间：2025-07-10 09:02:43 / 修改时间：09:14:26" itemprop="dateCreated datePublished" datetime="2025-07-10T09:02:43+08:00">2025-07-10</time>
     </span>
 
   
@@ -235,7 +235,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>411</span>
+      <span>293</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -253,9 +253,13 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>跟着朋友的博客，复现了一下，找回了学安卓逆向的一点快乐&#x2F;(ㄒoㄒ)&#x2F;~~<br><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-2044329-1-1.html">https://www.52pojie.cn/thread-2044329-1-1.html</a><br>简单来说，为图片添加水印用到了下面几个api。</p>
+          <p>跟着朋友的博客，复现了一下，找回了学安卓逆向的一点快乐&#x2F;(ㄒoㄒ)&#x2F;~~</p>
+<p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-2044329-1-1.html">https://www.52pojie.cn/thread-2044329-1-1.html</a></p>
+<p>简单来说，为图片添加水印用到了下面几个api。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1、Bitmap.compress：保存图片到磁盘时调用</span><br><span class="line"></span><br><span class="line">2、FileOutputStream.write：底层文件写</span><br><span class="line"></span><br><span class="line">3、Canvas.drawText：画布上写文字</span><br><span class="line"></span><br><span class="line">4、Canvas.drawBitmap：画布上绘制bitmap图像</span><br></pre></td></tr></table></figure>
-<p>之后对这几个函数进行hook，将水印图片进行绕过。<br>若要持久化，把脚本改写成xposed模块即可。<br><a target="_blank" rel="noopener" href="https://github.com/SimpsonGet/XhsWatermarkRemove/blob/main/ReadmePicture/1040g3k031j8o2p4mii505q0ggghji0q77fg497o.jpg?raw=true">https://github.com/SimpsonGet/XhsWatermarkRemove/blob/main/ReadmePicture/1040g3k031j8o2p4mii505q0ggghji0q77fg497o.jpg?raw=true</a></p>
+<p>之后对这几个函数进行hook，将水印图片进行绕过。</p>
+<p>若要持久化，把脚本改写成xposed模块即可。（下图无水印了）</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710091331057.png" alt="image-20250710091331057"></p>
 
       
     </div>
@@ -3107,7 +3111,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">14:53</span>
+    <span title="站点阅读时长">14:52</span>
   </span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
