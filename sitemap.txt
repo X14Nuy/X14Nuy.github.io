@@ -1,3 +1,4 @@
+http://example.com/2025/07/10/%E5%88%A9%E7%94%A8scrapy%E6%8A%93%E5%8F%96%E5%9B%BE%E9%9B%86%EF%BC%88day4%EF%BC%89/
 http://example.com/2025/07/10/xhs%E5%8E%BB%E6%B0%B4%E5%8D%B0/
 http://example.com/2025/07/09/%E6%9F%90%E7%BD%91%E7%AB%99%E8%A7%86%E9%A2%91%E7%88%AC%E5%8F%96-day3/
 http://example.com/2025/07/08/%E5%A3%81%E7%BA%B8%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E5%8D%8F%E7%A8%8B%E7%88%AC%E5%8F%96-day2/

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="整体理解scrapy是一个爬虫框架，通过它，可以快速构建一个高效且合格的爬虫。 接下来，通过下图理解scrapy框架的组成。 **Scrapy Engine (引擎)：**整个爬虫系统的cpu，负责处理所有组件之间的数据流动。 **Spiders(爬虫)：**留给用户写代码的地方（接口），一般用户需要写如何发送请求、如何解析响应等。 **Scheduler (调度器)：**接收来自引擎发来的请求，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用scrapy抓取图集（day4）">
+<meta property="og:url" content="http://example.com/2025/07/10/%E5%88%A9%E7%94%A8scrapy%E6%8A%93%E5%8F%96%E5%9B%BE%E9%9B%86%EF%BC%88day4%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="整体理解scrapy是一个爬虫框架，通过它，可以快速构建一个高效且合格的爬虫。 接下来，通过下图理解scrapy框架的组成。 **Scrapy Engine (引擎)：**整个爬虫系统的cpu，负责处理所有组件之间的数据流动。 **Spiders(爬虫)：**留给用户写代码的地方（接口），一般用户需要写如何发送请求、如何解析响应等。 **Scheduler (调度器)：**接收来自引擎发来的请求，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250709200244954.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710150941140.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153157204.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710173402694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710174134510.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153307591.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153844494.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710154117910.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710164802113.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710165139324.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710182122220.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710183325448.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710225446915.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234121141.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234721065.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234234050.png">
+<meta property="article:published_time" content="2025-07-10T15:44:35.000Z">
+<meta property="article:modified_time" content="2025-07-10T15:48:52.738Z">
+<meta property="article:author" content="X14Nuy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250709200244954.png">
+
+
+<link rel="canonical" href="http://example.com/2025/07/10/%E5%88%A9%E7%94%A8scrapy%E6%8A%93%E5%8F%96%E5%9B%BE%E9%9B%86%EF%BC%88day4%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2025/07/10/%E5%88%A9%E7%94%A8scrapy%E6%8A%93%E5%8F%96%E5%9B%BE%E9%9B%86%EF%BC%88day4%EF%BC%89/","path":"2025/07/10/利用scrapy抓取图集（day4）/","title":"利用scrapy抓取图集（day4）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>利用scrapy抓取图集（day4） | Hexo</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hexo</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E7%90%86%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">整体理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">运作流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.1.</span> <span class="nav-text">创建项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BB%A3%E7%A0%81"><span class="nav-number">3.2.</span> <span class="nav-text">添加代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%88%AC%E5%8F%96"><span class="nav-number">3.3.</span> <span class="nav-text">爬取</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E7%88%AC%E5%8F%96%EF%BC%9A%E7%AB%99%E9%85%B7"><span class="nav-number">4.</span> <span class="nav-text">案例爬取：站酷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E6%AD%A5%E5%88%86%E6%9E%90"><span class="nav-number">4.1.</span> <span class="nav-text">初步分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8scrapy%E6%A1%86%E6%9E%B6%E5%86%99%E7%88%AC%E8%99%AB"><span class="nav-number">4.2.</span> <span class="nav-text">利用scrapy框架写爬虫</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">X14Nuy</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/07/10/%E5%88%A9%E7%94%A8scrapy%E6%8A%93%E5%8F%96%E5%9B%BE%E9%9B%86%EF%BC%88day4%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="X14Nuy">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="利用scrapy抓取图集（day4） | Hexo">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用scrapy抓取图集（day4）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-07-10 23:44:35 / 修改时间：23:48:52" itemprop="dateCreated datePublished" datetime="2025-07-10T23:44:35+08:00">2025-07-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>16k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>30 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="整体理解"><a href="#整体理解" class="headerlink" title="整体理解"></a>整体理解</h1><p>scrapy是一个爬虫框架，通过它，可以快速构建一个高效且合格的爬虫。</p>
+<p>接下来，通过下图理解scrapy框架的组成。</p>
+<p>**Scrapy Engine (引擎)：**整个爬虫系统的cpu，负责处理所有组件之间的数据流动。</p>
+<p>**Spiders(爬虫)：**留给用户写代码的地方（接口），一般用户需要写如何发送请求、如何解析响应等。</p>
+<p>**Scheduler (调度器)：**接收来自引擎发来的请求，将请求放到队列中，并对它们去重。当引擎需要执行一个请求（交给Downloader下载）时，调度器需要从队列中拿出一个任务（链接）给引擎。</p>
+<p>**Downloader (下载器)：**它唯一的职责就是根据引擎给它的请求，去互联网 (Internet) 上下载网页，然后把下载结果包装成一个响应 (Response) 对象返回给引擎。</p>
+<p><strong>Item Pipeline (项目管道)</strong>: <strong>数据的“加工厂”</strong>。当 Spider 从网页中提取出数据 (Items) 后，这些数据会被送到这里进行一系列处理，比如：</p>
+<ul>
+<li>数据清洗和验证。</li>
+<li>丢弃无用的数据。</li>
+<li>将最终干净的数据存入数据库、CSV 文件或 JSON 文件中。</li>
+</ul>
+<p><strong>Downloader Middlewares (下载器中间件)：<strong>位于引擎和下载器之间的</strong>“安检通道”</strong>。当请求从引擎发往下载器，以及响应从下载器返回引擎时，都会经过这里。可以用它来：</p>
+<ul>
+<li><p><strong>处理请求</strong>: 修改或添加请求头 (如 <code>User-Agent</code>)、设置代理 IP、处理 <code>robots.txt</code> 规则等。</p>
+</li>
+<li><p><strong>处理响应</strong>: 在响应被 Spider 解析前进行一些预处理。</p>
+</li>
+</ul>
+<p><strong>Spider Middlewares (爬虫中间件)</strong>: 位于引擎和 Spider 之间的**“安检通道”**。它主要处理 Spider 的输入（响应）和输出（请求和数据项）。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250709200244954.png" alt="image-20250709200244954"></p>
+<h1 id="运作流程"><a href="#运作流程" class="headerlink" title="运作流程"></a>运作流程</h1><p>代码写好，程序开始运行…</p>
+<ul>
+<li>1 引擎：Hi！Spider, 你要处理哪一个网站？</li>
+<li>2 Spider：老大要我处理xxxx.com。</li>
+<li>3 引擎：你把第一个需要处理的URL给我吧。</li>
+<li>4 Spider：给你，第一个URL是xxxxxxx.com。</li>
+<li>5 引擎：Hi！调度器，我这有request请求你帮我排序入队一下。</li>
+<li>6 调度器：好的，正在处理你等一下。</li>
+<li>7 引擎：Hi！调度器，把你处理好的request请求给我。</li>
+<li>8 调度器：给你，这是我处理好的request</li>
+<li>9 引擎：Hi！下载器，你按照老大的下载中间件的设置帮我下载一下这个request请求</li>
+<li>10 下载器：好的！给你，这是下载好的东西。（如果失败：sorry，这个request下载失败了。然后引擎告诉调度器，这个request下载失败了，你记录一下，我们待会儿再下载）</li>
+<li>11 引擎：Hi！Spider，这是下载好的东西，并且已经按照老大的下载中间件处理过了，你自己处理一下（注意！这儿responses默认是交给def parse()这个函数处理的）</li>
+<li>12 Spider：（处理完毕数据之后对于需要跟进的URL），Hi！引擎，我这里有两个结果，这个是我需要跟进的URL，还有这个是我获取到的Item数据。</li>
+<li>13 引擎：Hi ！管道 我这儿有个item你帮我处理一下！调度器！这是需要跟进URL你帮我处理下。然后从第四步开始循环，直到获取完老大需要全部信息。</li>
+<li>14 管道调度器：好的，现在就做！</li>
+</ul>
+<h1 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h1><p>对于用户来说，在Scrapy的这些组件中，留给用户编写的接口主要是：Spiders、Item Pipeline、Downloader Middlewares。</p>
+<p>一般情况下，要使用Scrapy爬取内容，用户需要实现以下3个模块的代码编写：</p>
+<p><strong>Spiders (爬虫)</strong>: 这是<strong>最核心、必须由用户编写</strong>的部分。所有的爬取逻辑，包括从哪个 URL 开始、如何跟踪链接以及如何从页面中提取数据，都在这里定义。</p>
+<p><strong>Item Pipeline (项目管道)</strong>: 这是<strong>第二常用</strong>的用户接口。当从 Spider 中提取出数据（Items）后，如果想进行数据清洗、验证、去重或将其存储到数据库（如 MySQL, MongoDB）等特定地方，就需要自己编写 Pipeline。</p>
+<p><strong>Downloader Middlewares (下载器中间件)</strong>: 这是<strong>非常常用</strong>的用户接口，尤其是在应对反爬虫策略时。你需要通过编写或启用下载器中间件来执行以下操作：</p>
+<ul>
+<li>设置随机的 <code>User-Agent</code>。</li>
+<li>添加代理 IP。</li>
+<li>处理复杂的 Cookie 或 Javascript 逻辑。</li>
+</ul>
+<p>使用教程如下：</p>
+<h2 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h2><p>创建一个名为<code>scrapy_tutorial</code>的项目。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy startproject scrapy_tutorial</span><br></pre></td></tr></table></figure>
+
+<p>目录结果是这样的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">scrapy_tutorial/</span><br><span class="line">    scrapy.cfg            # 部署配置文件</span><br><span class="line">    scrapy_tutorial/      # 项目的Python模块</span><br><span class="line">        __init__.py</span><br><span class="line">        items.py          # 定义Item</span><br><span class="line">        middlewares.py    # 定义中间件</span><br><span class="line">        pipelines.py      # 定义项目管道</span><br><span class="line">        settings.py       # 设置文件</span><br><span class="line">        spiders/          # 放置爬虫的目录</span><br><span class="line">            __init__.py</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加代码"><a href="#添加代码" class="headerlink" title="添加代码"></a>添加代码</h2><p>往文件spiders&#x2F;__init__.py中添加代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># This package will contain the spiders of your Scrapy project</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Please refer to the documentation for information on how to create and manage</span></span><br><span class="line"><span class="comment"># your spiders.</span></span><br><span class="line"><span class="keyword">import</span> scrapy</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">QuotesSpider</span>(scrapy.Spider):</span><br><span class="line">    name = <span class="string">&#x27;quotes&#x27;</span></span><br><span class="line">    start_urls = [</span><br><span class="line">        <span class="string">&#x27;http://quotes.toscrape.com/page/1/&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;http://quotes.toscrape.com/page/2/&#x27;</span></span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        page = response.url.split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">2</span>]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;hello&quot;</span>)</span><br><span class="line">        filename = <span class="string">f&#x27;quotes-<span class="subst">&#123;page&#125;</span>.html&#x27;</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(response.body)</span><br><span class="line">        <span class="variable language_">self</span>.log(<span class="string">f&#x27;Saved file <span class="subst">&#123;filename&#125;</span>&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="爬取"><a href="#爬取" class="headerlink" title="爬取"></a>爬取</h2><p>执行爬虫，scrapy框架回根据输入的quotes（爬虫名字）去爬取数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrapy crawl quotes</span><br></pre></td></tr></table></figure>
+
+<h1 id="案例爬取：站酷"><a href="#案例爬取：站酷" class="headerlink" title="案例爬取：站酷"></a>案例爬取：站酷</h1><p>目标网站：<a target="_blank" rel="noopener" href="https://www.zcool.com.cn/">站酷ZCOOL-设计师互动平台-打开站酷,发现更好的设计!</a></p>
+<p>这次爬取的目标是：图片、标题、点赞数、用户名，以用户名、标题、点赞数作为文件夹，将页面内的目标图片爬取下来，放到对应的文件夹内。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710150941140.png" alt="image-20250710150941140"></p>
+<h2 id="初步分析"><a href="#初步分析" class="headerlink" title="初步分析"></a>初步分析</h2><p>先不着急写爬虫，先看看有没有需要逆向的参数。</p>
+<p>根据抓包，首页的请求标头是这样的，没有加密字段。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="line">Accept-Encoding: gzip, deflate, br, zstd</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6</span><br><span class="line">Cache-Control: max-age=0</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Cookie: HWWAFSESID=625ae7945294c79738; HWWAFSESTIME=1752131201045; _sm=197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f; meitustat=&#123;%22wgid%22:%22197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f%22&#125;; Hm_lvt_e6331320ac7de17020046faecd5fa6b8=1752131201; HMACCOUNT=67DBE82315EBBF65; psid=197f328686a917-0b9d0a9aef36da-4c657b58-1bcee4-197f328686b3a80; sensorsdata2015jssdkchannel=%7B%22prop%22%3A%7B%22_sa_channel_landing_url%22%3A%22%22%7D%7D; sajssdk_2015_cross_new_user=1; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22197f328686e1b39-0af9bfce8e4ade8-4c657b58-1822436-197f328686f35a%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTk3ZjMyODY4NmUxYjM5LTBhZjliZmNlOGU0YWRlOC00YzY1N2I1OC0xODIyNDM2LTE5N2YzMjg2ODZmMzVhIn0%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22197f328686e1b39-0af9bfce8e4ade8-4c657b58-1822436-197f328686f35a%22%7D; newMeitustat_wgid=197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f; customer=2; z_law_undefined=false; session=eyJjdXJyZW50VXNlciI6bnVsbH0=; session.sig=1VmncKqjATz0GMOcrellG1zEeXo; recommend_tip=1; r_drefresh_count=2; Hm_lpvt_e6331320ac7de17020046faecd5fa6b8=1752132340; eventPushTime=1664159429345</span><br><span class="line">Host: www.zcool.com.cn</span><br><span class="line">Referer: https://www.zcool.com.cn/home</span><br><span class="line">Sec-Fetch-Dest: document</span><br><span class="line">Sec-Fetch-Mode: navigate</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Sec-Fetch-User: ?1</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0</span><br><span class="line">sec-ch-ua: &quot;Not)A;Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;138&quot;, &quot;Microsoft Edge&quot;;v=&quot;138&quot;</span><br><span class="line">sec-ch-ua-mobile: ?0</span><br><span class="line">sec-ch-ua-platform: &quot;Windows&quot;</span><br></pre></td></tr></table></figure>
+
+<p>而在返回的页面中，存在指向存放插画具体信息的链接。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153157204.png" alt="image-20250710153157204" style="zoom:80%;" />
+
+<p>但在页面源代码中，并没有类似的内容，大概率是ajax。</p>
+<p>搜索“<a target="_blank" rel="noopener" href="https://www.zcool.com.cn/work/ZNzIyMTQwMzY=.html">近期四幅复古美漫风插画</a>”，看看哪个请求的响应是这个。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710173402694.png" alt="image-20250710173402694" style="zoom:80%;" />
+
+<p>请求参数p&#x3D;1&amp;ps&#x3D;20&amp;column&#x3D;4不像加密，请求头也没有加密字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /p1/discover/first?p=1&amp;ps=20&amp;column=4 HTTP/1.1</span><br><span class="line">AbCurrentList: </span><br><span class="line">Accept: application/json, text/plain, */*</span><br><span class="line">Accept-Encoding: gzip, deflate, br, zstd</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7</span><br><span class="line">Cache-Control: no-cache</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Cookie: HWWAFSESID=ef49ebbddb7f9f374c; HWWAFSESTIME=1752135440608; _sm=197f369207f2968-0319a2bceab60b8-26011151-1822436-197f3692080551f; meitustat=&#123;%22wgid%22:%22197f369207f2968-0319a2bceab60b8-26011151-1822436-197f3692080551f%22&#125;; psid=197f369220f262b-0b4e2b67741871-26011151-1bcee4-197f369221038bb; sensorsdata2015jssdkchannel=%7B%22prop%22%3A%7B%22_sa_channel_landing_url%22%3A%22%22%7D%7D; sajssdk_2015_cross_new_user=1; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22197f36922131c0b-0b4e2b67741871-26011151-1822436-197f36922142e22%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTk3ZjM2OTIyMTMxYzBiLTBiNGUyYjY3NzQxODcxLTI2MDExMTUxLTE4MjI0MzYtMTk3ZjM2OTIyMTQyZTIyIn0%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22197f36922131c0b-0b4e2b67741871-26011151-1822436-197f36922142e22%22%7D; newMeitustat_wgid=197f369207f2968-0319a2bceab60b8-26011151-1822436-197f3692080551f; customer=2; z_law_undefined=false; session=eyJjdXJyZW50VXNlciI6bnVsbH0=; session.sig=1VmncKqjATz0GMOcrellG1zEeXo; z_ex_group=%7B%7D</span><br><span class="line">Host: www.zcool.com.cn</span><br><span class="line">Referer: https://www.zcool.com.cn/?page=1</span><br><span class="line">Sec-Fetch-Dest: empty</span><br><span class="line">Sec-Fetch-Mode: cors</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36</span><br><span class="line">sec-ch-ua: &quot;Not)A;Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;138&quot;, &quot;Google Chrome&quot;;v=&quot;138&quot;</span><br><span class="line">sec-ch-ua-mobile: ?0</span><br><span class="line">sec-ch-ua-platform: &quot;Windows&quot;</span><br></pre></td></tr></table></figure>
+
+<p>根据分析，请求参数p&#x3D;1指的页数为1；ps未知，但ps是不变的，大概率无关紧要；column&#x3D;4指的是展示的页面中，一行4个item。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710174134510.png" alt="image-20250710174134510"></p>
+<p>接下来，打开具体的作品链接搜集信息，发现<strong>页面内</strong>无法使用F12（开发者工具），也无法右键获得图片的链接地址。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153307591.png" alt="image-20250710153307591" style="zoom:80%;" />
+
+<p>然而，在<strong>搜索栏</strong>中，可以打开开发者工具。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710153844494.png" alt="image-20250710153844494"></p>
+<p>请求的链接是一个静态页面，这回不涉及ajax了，真好。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710154117910.png" alt="image-20250710154117910" style="zoom:80%;" />
+
+<p>同时，这个请求标头同样没有加密字段。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /work/ZNzIyMTQwMzY=.html HTTP/1.1</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="line">Accept-Encoding: gzip, deflate, br, zstd</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6</span><br><span class="line">Cache-Control: max-age=0</span><br><span class="line">Connection: keep-alive</span><br><span class="line">Cookie: HWWAFSESID=625ae7945294c79738; HWWAFSESTIME=1752131201045; _sm=197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f; meitustat=&#123;%22wgid%22:%22197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f%22&#125;; Hm_lvt_e6331320ac7de17020046faecd5fa6b8=1752131201; HMACCOUNT=67DBE82315EBBF65; psid=197f328686a917-0b9d0a9aef36da-4c657b58-1bcee4-197f328686b3a80; sensorsdata2015jssdkchannel=%7B%22prop%22%3A%7B%22_sa_channel_landing_url%22%3A%22%22%7D%7D; sajssdk_2015_cross_new_user=1; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22197f328686e1b39-0af9bfce8e4ade8-4c657b58-1822436-197f328686f35a%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%2C%22%24latest_referrer%22%3A%22%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTk3ZjMyODY4NmUxYjM5LTBhZjliZmNlOGU0YWRlOC00YzY1N2I1OC0xODIyNDM2LTE5N2YzMjg2ODZmMzVhIn0%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%22197f328686e1b39-0af9bfce8e4ade8-4c657b58-1822436-197f328686f35a%22%7D; newMeitustat_wgid=197f32865943484-051bea0fbaabfd8-4c657b58-1822436-197f3286595616f; customer=2; z_law_undefined=false; session=eyJjdXJyZW50VXNlciI6bnVsbH0=; session.sig=1VmncKqjATz0GMOcrellG1zEeXo; r_drefresh_count=1; Hm_lpvt_e6331320ac7de17020046faecd5fa6b8=1752131669; recommend_tip=1</span><br><span class="line">Host: www.zcool.com.cn</span><br><span class="line">Sec-Fetch-Dest: document</span><br><span class="line">Sec-Fetch-Mode: navigate</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Sec-Fetch-User: ?1</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0</span><br><span class="line">sec-ch-ua: &quot;Not)A;Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;138&quot;, &quot;Microsoft Edge&quot;;v=&quot;138&quot;</span><br><span class="line">sec-ch-ua-mobile: ?0</span><br><span class="line">sec-ch-ua-platform: &quot;Windows&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用scrapy框架写爬虫"><a href="#利用scrapy框架写爬虫" class="headerlink" title="利用scrapy框架写爬虫"></a>利用scrapy框架写爬虫</h2><p>在文件夹spiders的__init__.py中。</p>
+<p>将默认的start_urls换成函数start_requests。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 爬取页数</span></span><br><span class="line">num_pages = <span class="number">1</span></span><br><span class="line"><span class="comment"># 基础URL</span></span><br><span class="line">page_url = <span class="string">&quot;https://www.zcool.com.cn/p1/discover/first?p=XXX&amp;ps=20&amp;column=4&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成起始URL列表</span></span><br><span class="line"><span class="comment"># start_urls = [</span></span><br><span class="line">    </span><br><span class="line"><span class="comment"># ]</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">start_requests</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="variable language_">self</span>.num_pages + <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">yield</span> scrapy.Request(url=<span class="variable language_">self</span>.page_url.replace(<span class="string">&quot;XXX&quot;</span>, <span class="built_in">str</span>(i)), callback=<span class="variable language_">self</span>.parse)</span><br></pre></td></tr></table></figure>
+
+<p>简单的伪装一下headers，在文件settings.py中，修改成下面的语句。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Override the default request headers:</span></span><br><span class="line">DEFAULT_REQUEST_HEADERS = &#123;</span><br><span class="line">   <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面插入一个小插曲，之前没分析出ajax的时候做的一些操作。</p>
+<hr>
+<p>为了防止出现下面这个情况，还需要修改设置。（我之前爬主页的截图）</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710164802113.png" alt="image-20250710164802113" style="zoom:80%;" />
+
+<p>在settings.py中，修改<code>ROBOTSTXT_OBEY</code>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ROBOTSTXT_OBEY = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+
+<p>这回没问题了，接下来定位首页的每个Item。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710165139324.png" alt="image-20250710165139324"></p>
+<hr>
+<p>回到正轨继续分析，修改请求链接后能访问到目标链接了。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710182122220.png" alt="image-20250710182122220"></p>
+<p>收集pageUrl。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">parse</span>(<span class="params">self, response</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        解析列表页的JSON，为每个作品生成一个详情页的抓取请求。</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            data = response.json()</span><br><span class="line">        <span class="keyword">except</span> json.JSONDecodeError:</span><br><span class="line">            <span class="variable language_">self</span>.logger.error(<span class="string">f&quot;Failed to decode JSON from <span class="subst">&#123;response.url&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> data <span class="keyword">and</span> data.get(<span class="string">&#x27;datas&#x27;</span>):</span><br><span class="line">            <span class="keyword">for</span> item <span class="keyword">in</span> data[<span class="string">&#x27;datas&#x27;</span>]:</span><br><span class="line">                content = item.get(<span class="string">&#x27;content&#x27;</span>)</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> content:</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">                page_url = content.get(<span class="string">&#x27;pageUrl&#x27;</span>)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> page_url <span class="keyword">and</span> <span class="string">&#x27;/work/&#x27;</span> <span class="keyword">in</span> page_url:</span><br><span class="line">                    creator_obj = content.get(<span class="string">&#x27;creatorObj&#x27;</span>, &#123;&#125;)</span><br><span class="line">                    </span><br><span class="line">                    title = content.get(<span class="string">&#x27;title&#x27;</span>, <span class="string">&#x27;无标题&#x27;</span>)</span><br><span class="line">                    username = creator_obj.get(<span class="string">&#x27;username&#x27;</span>, <span class="string">&#x27;匿名用户&#x27;</span>)</span><br><span class="line">                    recommend_count = content.get(<span class="string">&#x27;recommendCount&#x27;</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">                    <span class="comment"># 使用 cb_kwargs 将数据传递给回调函数，同时对于返回的response，使用self.parse_work_details进行解析</span></span><br><span class="line">                    <span class="keyword">yield</span> scrapy.Request(</span><br><span class="line">                        url=page_url,</span><br><span class="line">                        callback=<span class="variable language_">self</span>.parse_work_details,</span><br><span class="line">                        cb_kwargs=&#123;</span><br><span class="line">                            <span class="string">&#x27;title&#x27;</span>: title,</span><br><span class="line">                            <span class="string">&#x27;username&#x27;</span>: username,</span><br><span class="line">                            <span class="string">&#x27;recommend_count&#x27;</span>: recommend_count</span><br><span class="line">                        &#125;</span><br><span class="line">                    )</span><br></pre></td></tr></table></figure>
+
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710183325448.png" alt="image-20250710183325448" style="zoom:80%;" />
+
+<p>针对pageUrl返回的页面，需要用另一个parser来解析，用来定位图片链接。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">def</span> <span class="title function_">parse_work_details</span>(<span class="params">self, response, title, username, recommend_count</span>):</span><br><span class="line"><span class="comment"># 获得title</span></span><br><span class="line">      <span class="variable language_">self</span>.logger.info(<span class="string">f&quot;Parsing details for: <span class="subst">&#123;title&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">      json_data_string = response.css(<span class="string">&#x27;script#__NEXT_DATA__::text&#x27;</span>).get()</span><br><span class="line">      </span><br><span class="line">      image_urls = []</span><br><span class="line">      <span class="keyword">if</span> json_data_string:</span><br><span class="line">          <span class="keyword">try</span>:</span><br><span class="line"></span><br><span class="line">              data = json.loads(json_data_string)</span><br><span class="line">              </span><br><span class="line">              product_images = data.get(<span class="string">&#x27;props&#x27;</span>, &#123;&#125;).get(<span class="string">&#x27;pageProps&#x27;</span>, &#123;&#125;).get(<span class="string">&#x27;data&#x27;</span>, &#123;&#125;).get(<span class="string">&#x27;productImages&#x27;</span>, [])</span><br><span class="line">              </span><br><span class="line">		<span class="comment"># 定位并获得url</span></span><br><span class="line">              image_urls = [img.get(<span class="string">&#x27;url&#x27;</span>) <span class="keyword">for</span> img <span class="keyword">in</span> product_images <span class="keyword">if</span> img.get(<span class="string">&#x27;url&#x27;</span>)]</span><br><span class="line">              <span class="built_in">print</span>(<span class="string">f&quot;Found <span class="subst">&#123;<span class="built_in">len</span>(image_urls)&#125;</span> images for <span class="subst">&#123;title&#125;</span> by <span class="subst">&#123;username&#125;</span>&quot;</span>)</span><br><span class="line">          </span><br><span class="line">          <span class="keyword">except</span> json.JSONDecodeError:</span><br><span class="line">              <span class="variable language_">self</span>.logger.error(<span class="string">f&quot;Failed to parse JSON from page: <span class="subst">&#123;response.url&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> image_urls:</span><br><span class="line">          <span class="comment"># 清理文件名中的非法字符</span></span><br><span class="line">          clean_title = re.sub(<span class="string">r&#x27;[\\/*?:&quot;&lt;&gt;|]&#x27;</span>, <span class="string">&quot;&quot;</span>, title).strip()</span><br><span class="line">          clean_username = re.sub(<span class="string">r&#x27;[\\/*?:&quot;&lt;&gt;|]&#x27;</span>, <span class="string">&quot;&quot;</span>, username).strip()</span><br><span class="line">          </span><br><span class="line">          <span class="comment"># 构建文件夹名称</span></span><br><span class="line">          folder_name = <span class="string">f&quot;<span class="subst">&#123;clean_title&#125;</span>-<span class="subst">&#123;clean_username&#125;</span>-<span class="subst">&#123;recommend_count&#125;</span>赞&quot;</span></span><br><span class="line"></span><br><span class="line">          <span class="comment"># 传给管道</span></span><br><span class="line">          <span class="keyword">yield</span> &#123;</span><br><span class="line">              <span class="string">&#x27;image_urls&#x27;</span>: image_urls,</span><br><span class="line">              <span class="string">&#x27;folder_name&#x27;</span>: folder_name</span><br><span class="line">          &#125;</span><br><span class="line">      <span class="keyword">else</span>:</span><br><span class="line">          <span class="variable language_">self</span>.logger.warning(<span class="string">f&quot;No images found on page: <span class="subst">&#123;response.url&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>函数<code>parse_work_details</code>会为管道带来图片链接、文件夹名字。</p>
+<p>接下来在管道类中，写对图片链接的处理方式。</p>
+<p>定义了一个新类ZcoolImagePipeline，继承ImagesPipeline——ImagesPipeline是Scrapy专门爬图片的类，所以这里覆写函数get_media_requests和file_path，自己定义对图片的处理逻辑即可。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ZcoolImagePipeline</span>(<span class="title class_ inherited__">ImagesPipeline</span>):</span><br><span class="line">    <span class="comment"># 负责统一进行图片下载</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_media_requests</span>(<span class="params">self, item, info</span>):</span><br><span class="line">        <span class="comment"># 获得图片链接</span></span><br><span class="line">        <span class="keyword">for</span> i, image_url <span class="keyword">in</span> <span class="built_in">enumerate</span>(item.get(<span class="string">&#x27;image_urls&#x27;</span>, [])):</span><br><span class="line">			<span class="comment"># 下载图片</span></span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;Requesting image <span class="subst">&#123;i&#125;</span> from URL: <span class="subst">&#123;image_url&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="comment"># 使用meta的方式，传递数据，以便保存时可以取出来定义文件夹名</span></span><br><span class="line">            <span class="keyword">yield</span> scrapy.Request(image_url, meta=&#123;<span class="string">&#x27;item&#x27;</span>: item, <span class="string">&#x27;image_index&#x27;</span>: i&#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 负责图片的保存路径</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">file_path</span>(<span class="params">self, request, response=<span class="literal">None</span>, info=<span class="literal">None</span>, *, item=<span class="literal">None</span></span>):</span><br><span class="line">		<span class="comment"># 获得item，即url和文件夹名的字典</span></span><br><span class="line">        image_item = request.meta[<span class="string">&#x27;item&#x27;</span>]</span><br><span class="line">        <span class="comment"># 获得图片名，这里以序号作为图片名</span></span><br><span class="line">        image_index = request.meta[<span class="string">&#x27;image_index&#x27;</span>]</span><br><span class="line">        <span class="comment"># 从item中获得文件夹名，早在parse_work_details设置的文件夹名</span></span><br><span class="line">        folder = image_item[<span class="string">&#x27;folder_name&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建文件</span></span><br><span class="line">        file_extension = os.path.splitext(urlparse(request.url).path)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 如果无后缀名的话，默认用jpg</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> file_extension:</span><br><span class="line">            file_extension = <span class="string">&#x27;.jpg&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 返回存储的文件名（带路径的那种）</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&#x27;<span class="subst">&#123;folder&#125;</span>/<span class="subst">&#123;image_index&#125;</span><span class="subst">&#123;file_extension&#125;</span>&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果使用了ImagesPipeline，还需要再Setting中定义刚才的管道类和存储路径。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ITEM_PIPELINES = &#123;</span><br><span class="line"><span class="comment">#    &quot;zcool.pipelines.ZcoolPipeline&quot;: 300,</span></span><br><span class="line">    <span class="comment"># 我们定义的管道类，100是优先级，越小优先级越高</span></span><br><span class="line">   <span class="string">&quot;zcool.pipelines.ZcoolImagePipeline&quot;</span>: <span class="number">100</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终的存储路径是IMAGES_STORE + 函数file_path的返回值</span></span><br><span class="line">IMAGES_STORE = <span class="string">&quot;C:\\Users\\19415\\Desktop\\爬虫\\Scrapy_Projects\\zcool\\downloads&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>跑结果！跑不出来，做了好久的检查，代码没问题，最后看日志，发现ImagesPipeline需要按照Pillow。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710225446915.png" alt="image-20250710225446915"></p>
+<p>重新启动！</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234121141.png" alt="image-20250710234121141"></p>
+<p>这回完美了，下载到了很多图片。</p>
+<p><img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234721065.png" alt="image-20250710234721065"></p>
+<p>如果爬取太慢，可以设置一下这个。</p>
+<img src="https://raw.githubusercontent.com/X14Nuy/Picture-Bed/master/img/image-20250710234234050.png" alt="image-20250710234234050" style="zoom:80%;" />
+
+<p>最后，申明一下，只是做一个爬虫学习！不是想引起DDoS攻击！侵权删！！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/10/xhs%E5%8E%BB%E6%B0%B4%E5%8D%B0/" rel="prev" title="xhs去水印">
+                  <i class="fa fa-angle-left"></i> xhs去水印
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">X14Nuy</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">507k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">15:22</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
